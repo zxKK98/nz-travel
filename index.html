@@ -1,0 +1,1005 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>新西兰南岛7天环线自驾路书 v9</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif; background: linear-gradient(135deg, #e0f7fa 0%, #fff3e0 50%, #fce4ec 100%); color: #2c3e50; line-height: 1.8; min-height: 100vh; }
+        .container { max-width: 900px; margin: 0 auto; padding: 20px 16px 60px; }
+        /* Toolbar */
+        .toolbar { position: sticky; top: 0; background: white; padding: 12px 16px; border-radius: 12px; margin-bottom: 16px; box-shadow: 0 2px 12px rgba(0,0,0,0.1); display: flex; gap: 8px; flex-wrap: wrap; z-index: 100; }
+        .toolbar-btn { padding: 8px 16px; border: none; border-radius: 20px; cursor: pointer; font-size: 13px; font-weight: 500; display: flex; align-items: center; gap: 6px; transition: all 0.2s; }
+        .toolbar-btn.primary { background: #1565c0; color: white; }
+        .toolbar-btn.secondary { background: #f5f7fa; color: #37474f; }
+        .toolbar-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+        .toolbar-btn.active { background: #e3f2fd; color: #1565c0; }
+        /* Header */
+        .header { text-align: center; padding: 60px 20px 40px; background: url('https://i.imgur.com/UYbqoj2.jpeg') center/cover no-repeat; border-radius: 20px; color: white; margin-bottom: 30px; box-shadow: 0 8px 32px rgba(0,0,0,0.3); position: relative; overflow: hidden; }
+        .header::before { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: linear-gradient(135deg, rgba(21,101,192,0.65), rgba(2,119,189,0.55), rgba(0,131,143,0.5)); z-index: 1; }
+        .header > * { position: relative; z-index: 2; }
+        .header h1 { font-size: 28px; font-weight: 700; margin-bottom: 10px; text-shadow: 0 2px 8px rgba(0,0,0,0.4); }
+        .header .subtitle { font-size: 15px; opacity: 0.95; margin-bottom: 18px; text-shadow: 0 1px 4px rgba(0,0,0,0.3); }
+        .header-tags { display: flex; justify-content: center; gap: 8px; flex-wrap: wrap; }
+        .header-tags span { background: rgba(255,255,255,0.2); padding: 4px 14px; border-radius: 20px; font-size: 12px; backdrop-filter: blur(4px); }
+        .change-bg-btn { position: absolute; bottom: 12px; right: 16px; z-index: 3; background: rgba(255,255,255,0.25); border: 1px solid rgba(255,255,255,0.4); color: white; padding: 5px 14px; border-radius: 16px; font-size: 11px; cursor: pointer; backdrop-filter: blur(4px); transition: all 0.2s; }
+        .change-bg-btn:hover { background: rgba(255,255,255,0.4); }
+        /* Section cards */
+        .section-card { background: white; border-radius: 16px; padding: 24px; margin-bottom: 24px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); }
+        .section-card h2 { font-size: 18px; color: #1565c0; margin-bottom: 16px; padding-left: 12px; border-left: 4px solid #1565c0; }
+        /* Timeline */
+        .tl-container { position: relative; padding-left: 30px; }
+        .tl-line { position: absolute; left: 8px; top: 0; bottom: 0; width: 2px; background: linear-gradient(to bottom, #1565c0, #43a047, #ff9800, #e53935); }
+        .tl-day-header { position: relative; padding: 14px 16px; background: #f8f9fa; border-radius: 12px; cursor: pointer; transition: all 0.2s; margin-bottom: 4px; }
+        .tl-day-header:hover { background: #e3f2fd; transform: translateX(4px); }
+        .tl-day-header.expanded { background: #e3f2fd; border-left: 3px solid #1565c0; }
+        .tl-day-header::before { content: ''; position: absolute; left: -26px; top: 18px; width: 12px; height: 12px; border-radius: 50%; background: #1565c0; border: 3px solid white; box-shadow: 0 2px 8px rgba(0,0,0,0.2); }
+        .tl-day-top { display: flex; justify-content: space-between; align-items: center; }
+        .tl-day-title { font-weight: 700; color: #333; font-size: 15px; }
+        .tl-day-meta { font-size: 12px; color: #666; }
+        .tl-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+        .tl-tag { background: white; padding: 3px 10px; border-radius: 12px; font-size: 11px; }
+        .tl-tag.time { color: #e65100; font-weight: 600; }
+        .tl-tag.spot { color: #1565c0; }
+        .tl-arrow { font-size: 10px; color: #999; margin-left: 6px; transition: transform 0.3s; display: inline-block; }
+        .tl-arrow.open { transform: rotate(180deg); color: #1565c0; }
+        /* Day detail (accordion content) */
+        .tl-detail { display: none; margin-left: 30px; margin-bottom: 16px; }
+        .tl-detail.show { display: block; }
+        .day-content { background: white; border-radius: 14px; overflow: hidden; border: 1px solid #e3f2fd; box-shadow: 0 2px 8px rgba(21,101,192,0.08); }
+        .day-img { text-align: center; padding: 16px 20px 0; }
+        .day-img img { width: 50%; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        .day-img p { color: #666; font-size: 12px; margin-top: 8px; }
+        .day-body { padding: 16px 20px 20px; }
+        .day-section { margin-bottom: 16px; }
+        .day-section h4 { font-size: 14px; color: #546e7a; margin-bottom: 8px; }
+        /* Spot items */
+        .spot-item { background: #f8f9fa; border-radius: 10px; padding: 10px 14px; margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center; transition: all 0.2s; }
+        .spot-item:hover { background: #e3f2fd; }
+        .spot-item:hover .spot-actions { opacity: 1; }
+        .spot-info { flex: 1; display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+        .spot-info .time { font-weight: 700; color: #e65100; font-size: 12px; min-width: 80px; }
+        .spot-info .name { font-weight: 600; color: #333; font-size: 13px; }
+        .spot-info .duration { font-size: 11px; color: #999; }
+        .spot-actions { display: flex; gap: 4px; opacity: 0; transition: all 0.2s; }
+        .spot-action-btn { background: white; border: 1px solid #e0e0e0; padding: 3px 8px; border-radius: 12px; font-size: 11px; cursor: pointer; transition: all 0.2s; }
+        .spot-action-btn:hover { background: #1565c0; color: white; border-color: #1565c0; }
+        .spot-action-btn.delete:hover { background: #e53935; border-color: #e53935; }
+        .spot-action-btn.add { background: #e8f5e9; color: #2e7d32; border-color: #a5d6a7; }
+        .spot-action-btn.add:hover { background: #2e7d32; color: white; }
+        /* Add new item button */
+        .add-item-btn { display: flex; align-items: center; justify-content: center; gap: 6px; padding: 10px; border: 2px dashed #c8e6c9; border-radius: 10px; color: #43a047; font-size: 13px; cursor: pointer; transition: all 0.2s; margin-top: 8px; background: transparent; width: 100%; }
+        .add-item-btn:hover { background: #e8f5e9; border-color: #43a047; }
+        /* Experience box */
+        .experience-box { background: linear-gradient(135deg, #fce4ec, #f8bbd0); border-radius: 12px; padding: 14px; margin: 10px 0; }
+        .experience-box h5 { color: #c2185b; margin-bottom: 6px; font-size: 13px; }
+        .experience-box p { font-size: 12px; color: #555; }
+        .experience-box .booking-info { font-size: 11px; color: #666; margin-top: 6px; }
+        .experience-box .booking-info a { color: #c2185b; font-weight: 600; }
+        /* Accommodation */
+        .accommodation { background: #fafafa; padding: 12px 16px; border-radius: 10px; margin-top: 10px; }
+        .accommodation h4 { color: #546e7a; font-size: 13px; margin-bottom: 6px; }
+        .accommodation li { padding: 2px 0; font-size: 13px; list-style: none; }
+        .nav-link { color: #1976d2; text-decoration: none; font-weight: 500; }
+        .nav-link:hover { text-decoration: underline; }
+        .tip-box { background: #e8f5e9; padding: 10px 14px; border-radius: 8px; margin: 8px 0; font-size: 12px; }
+        /* Food section */
+        .food-section { background: linear-gradient(135deg, #fff8e1, #fff3e0); border: 2px solid #ffb74d; border-radius: 16px; padding: 24px; margin-bottom: 24px; display: none; }
+        .food-section h2 { font-size: 18px; color: #e65100; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+        .food-filters { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
+        .food-filter { padding: 6px 14px; border: 2px solid #ffb74d; border-radius: 20px; background: white; color: #e65100; font-size: 13px; cursor: pointer; transition: all 0.2s; }
+        .food-filter:hover, .food-filter.active { background: #ff9800; color: white; border-color: #ff9800; }
+        .food-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 12px; }
+        .food-card { background: white; border-radius: 12px; padding: 14px; transition: all 0.2s; position: relative; }
+        .food-card:hover { transform: translateY(-2px); box-shadow: 0 4px 16px rgba(255,152,0,0.2); }
+        .food-card:hover .food-actions { opacity: 1; }
+        .food-card h4 { color: #333; font-size: 14px; margin-bottom: 4px; }
+        .food-card .food-type { font-size: 12px; color: #ff9800; margin-bottom: 6px; }
+        .food-card .food-desc { font-size: 12px; color: #666; line-height: 1.5; }
+        .food-card .food-price { font-size: 13px; color: #e65100; font-weight: 600; margin-top: 6px; }
+        .food-card .food-nav { margin-top: 8px; }
+        .food-card .food-nav a { display: inline-flex; align-items: center; gap: 4px; padding: 4px 12px; background: #e3f2fd; border-radius: 14px; color: #1565c0; font-size: 11px; text-decoration: none; transition: all 0.2s; }
+        .food-card .food-nav a:hover { background: #1565c0; color: white; }
+        .food-actions { position: absolute; top: 10px; right: 10px; display: flex; gap: 4px; opacity: 0; transition: all 0.2s; }
+        /* Map */
+        #map { height: 400px; border-radius: 12px; margin-bottom: 16px; z-index: 1; }
+        .map-legend { display: flex; flex-wrap: wrap; gap: 12px; padding: 12px; background: #f5f7fa; border-radius: 8px; font-size: 13px; }
+        .legend-item { display: flex; align-items: center; gap: 6px; }
+        .legend-dot { width: 12px; height: 12px; border-radius: 50%; }
+        .legend-line { width: 24px; height: 3px; background: #e53935; border-radius: 2px; }
+        .route-flow { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 6px; font-size: 13px; margin-top: 12px; }
+        .route-flow .city { background: #2e7d32; color: white; padding: 5px 12px; border-radius: 20px; font-weight: 600; white-space: nowrap; font-size: 12px; cursor: pointer; transition: all 0.2s; }
+        .route-flow .city:hover { transform: scale(1.1); box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
+        .route-flow .city.end { background: #c62828; }
+        .route-flow .city.start { background: #1565c0; }
+        .route-flow .arrow { color: #66bb6a; font-size: 14px; }
+        /* Info grid */
+        .info-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px; }
+        .info-item { background: #f5f7fa; padding: 10px 14px; border-radius: 10px; font-size: 13px; }
+        .info-item .label { color: #90a4ae; font-size: 11px; }
+        .info-item .value { font-weight: 600; color: #37474f; }
+        /* Comparison table */
+        table.cmp { width: 100%; border-collapse: collapse; font-size: 12px; margin-top: 10px; }
+        .cmp th, .cmp td { padding: 8px 10px; text-align: left; border-bottom: 1px solid #eceff1; }
+        .cmp th { background: #f5f7fa; color: #546e7a; font-weight: 600; font-size: 11px; }
+        .cmp .good { color: #2e7d32; font-weight: 600; }
+        /* Drive summary */
+        .drive-summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(85px, 1fr)); gap: 8px; margin-top: 10px; }
+        .drive-day { background: white; padding: 8px; border-radius: 8px; text-align: center; }
+        .drive-day .d { font-size: 11px; color: #90a4ae; }
+        .drive-day .h { font-size: 16px; font-weight: 700; color: #2e7d32; }
+        .drive-day .km { font-size: 10px; color: #607d8b; }
+        .drive-day .warn { color: #e65100; }
+        /* Modal */
+        .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: none; justify-content: center; align-items: center; z-index: 1000; }
+        .modal-overlay.active { display: flex; }
+        .modal { background: white; border-radius: 16px; max-width: 500px; width: 90%; max-height: 80vh; overflow-y: auto; }
+        .modal-header { padding: 16px 20px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; }
+        .modal-header h3 { font-size: 16px; color: #333; }
+        .modal-close { background: none; border: none; font-size: 24px; cursor: pointer; color: #999; }
+        .modal-body { padding: 20px; }
+        .modal-body .form-group { margin-bottom: 14px; }
+        .modal-body label { display: block; font-size: 12px; color: #666; margin-bottom: 4px; }
+        .modal-body input, .modal-body textarea, .modal-body select { width: 100%; padding: 10px 12px; border: 1px solid #e0e0e0; border-radius: 8px; font-size: 13px; }
+        .modal-body input:focus, .modal-body textarea:focus { outline: none; border-color: #1565c0; }
+        .modal-actions { padding: 14px 20px; border-top: 1px solid #eee; display: flex; gap: 8px; justify-content: flex-end; }
+        .modal-btn { padding: 8px 18px; border: none; border-radius: 20px; cursor: pointer; font-size: 13px; font-weight: 500; }
+        .modal-btn.primary { background: #1565c0; color: white; }
+        .modal-btn.danger { background: #e53935; color: white; }
+        .modal-btn.secondary { background: #f5f7fa; color: #666; }
+        .footer { text-align: center; padding: 30px; color: #90a4ae; font-size: 12px; }
+        @media (max-width: 600px) {
+            .container { padding: 12px; }
+            .header h1 { font-size: 20px; }
+            #map { height: 280px; }
+            .toolbar { padding: 8px; }
+            .toolbar-btn { padding: 6px 12px; font-size: 12px; }
+            .day-img img { width: 80% !important; }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+
+<!-- Toolbar -->
+<div class="toolbar">
+    <button class="toolbar-btn primary" onclick="toggleSection('timeline')"><span>📅</span> 时间轴视图</button>
+    <button class="toolbar-btn secondary" id="foodBtn" onclick="toggleSection('food')"><span>🍜</span> 美食推荐</button>
+    <button class="toolbar-btn secondary" onclick="window.print()"><span>📄</span> 导出PDF</button>
+    <button class="toolbar-btn secondary" onclick="resetData()"><span>🔄</span> 恢复默认</button>
+    <button class="toolbar-btn secondary" onclick="refreshFromCloud()" style="background:#e3f2fd;color:#1565c0;"><span>☁️</span> 同步</button>
+</div>
+
+<!-- Header -->
+<div class="header" id="heroHeader">
+    <h1>🇳🇿 新西兰南岛 7天环线自驾路书</h1>
+    <div class="subtitle">基督城出发 · 全程自驾 · 不走回头路</div>
+    <div class="header-tags">
+        <span>📅 2026年5月1日-7日</span>
+        <span>🚗 约 1100km</span>
+        <span>🏔️ 南岛大环线</span>
+        <span>⛳ 含高尔夫预订</span>
+    </div>
+    <button class="change-bg-btn" onclick="document.getElementById('bgUpload').click()">📷 更换背景</button>
+    <input type="file" id="bgUpload" accept="image/*" style="display:none" onchange="changeHeaderBg(this)">
+</div>
+
+<!-- Flight info -->
+<div class="section-card">
+    <h2>✈️ 航班信息</h2>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;">
+        <div style="background:#f8f9fa;border-radius:12px;padding:14px;font-size:13px;">
+            <div style="font-size:15px;font-weight:700;color:#1565c0;margin-bottom:8px;">🛫 去程：香港 → 墨尔本 → 基督城</div>
+            <div><strong>4月29日</strong> 22:45 香港出发</div>
+            <div><strong>4月30日</strong> 07:20 抵达墨尔本（停留 <span style="color:#e65100;font-weight:600;">11h20m</span>）</div>
+            <div><strong>5月1日</strong> 00:10 抵达基督城</div>
+        </div>
+        <div style="background:#f8f9fa;border-radius:12px;padding:14px;font-size:13px;">
+            <div style="font-size:15px;font-weight:700;color:#1565c0;margin-bottom:8px;">🛬 返程：基督城 → 墨尔本 → 香港</div>
+            <div><strong>5月8日</strong> 06:20 基督城出发</div>
+            <div><strong>5月8日</strong> 08:10 抵达墨尔本（停留 2h，不出关）</div>
+            <div><strong>5月8日</strong> 17:55 抵达香港</div>
+        </div>
+    </div>
+</div>
+
+<!-- Drive summary -->
+<div class="section-card" style="background:linear-gradient(135deg,#e8f5e9,#c8e6c9);border:2px solid #4caf50;">
+    <h2 style="color:#2e7d32;border-color:#2e7d32;">🚗 每日自驾时间</h2>
+    <div class="drive-summary">
+        <div class="drive-day"><div class="d">Day 1</div><div class="h">3h</div><div class="km">230km</div></div>
+        <div class="drive-day"><div class="d">Day 2</div><div class="h">45min</div><div class="km">105km</div></div>
+        <div class="drive-day"><div class="d">Day 3</div><div class="h">3h</div><div class="km">220km</div></div>
+        <div class="drive-day"><div class="d">Day 4</div><div class="h">1h</div><div class="km">80km</div></div>
+        <div class="drive-day"><div class="d">Day 5</div><div class="h">0h</div><div class="km">—</div></div>
+        <div class="drive-day"><div class="d">Day 6</div><div class="h warn">6h</div><div class="km">400km</div></div>
+        <div class="drive-day"><div class="d">Day 7</div><div class="h warn">7h</div><div class="km">550km</div></div>
+    </div>
+</div>
+
+<!-- Map -->
+<div class="section-card">
+    <h2 style="color:#2e7d32;border-color:#2e7d32;">🗺️ 路线地图</h2>
+    <div id="map"></div>
+    <div class="route-flow" id="routeFlow">
+        <span class="city start" onclick="flyToCity(0)" style="cursor:pointer">基督城</span><span class="arrow">→</span>
+        <span class="city" onclick="flyToCity(1)" style="cursor:pointer">特卡波湖</span><span class="arrow">→</span>
+        <span class="city" onclick="flyToCity(2)" style="cursor:pointer">库克山</span><span class="arrow">→</span>
+        <span class="city" onclick="flyToCity(3)" style="cursor:pointer">瓦纳卡</span><span class="arrow">→</span>
+        <span class="city" onclick="flyToCity(4)" style="cursor:pointer">皇后镇</span><span class="arrow">→</span>
+        <span class="city" onclick="flyToCity(5)" style="cursor:pointer">蒂阿瑙</span><span class="arrow">→</span>
+        <span class="city" onclick="flyToCity(6)" style="cursor:pointer">峡湾</span><span class="arrow">→</span>
+        <span class="city" onclick="flyToCity(7)" style="cursor:pointer">达尼丁</span><span class="arrow">→</span>
+        <span class="city" onclick="flyToCity(8)" style="cursor:pointer">奥马鲁</span><span class="arrow">→</span>
+        <span class="city end" onclick="flyToCity(0)" style="cursor:pointer">基督城</span>
+    </div>
+</div>
+
+<!-- Timeline (accordion) -->
+<div class="section-card" id="timelineSection" style="display:none;">
+    <h2>📅 行程时间轴 <span style="font-size:12px;color:#999;font-weight:normal;">含墨尔本转机 · 点击展开详情</span></h2>
+    <div class="tl-container" id="tlContainer">
+        <div class="tl-line"></div>
+        <!-- Rendered by JS -->
+    </div>
+</div>
+
+<!-- Food section -->
+<div class="food-section" id="foodSection">
+    <h2>🍜 美食推荐（小红书高赞汇总）<button class="add-item-btn" style="width:auto;display:inline-flex;margin:0 0 0 12px;padding:4px 14px;font-size:11px;" onclick="openAddFood()">＋ 新增餐厅</button></h2>
+    <div class="food-filters" id="foodFilters"></div>
+    <div class="food-list" id="foodList"></div>
+</div>
+
+<!-- Summary cards -->
+<div class="section-card">
+    <h2>⛳ 高尔夫球场预订</h2>
+    <table class="cmp">
+        <tr><th>球场</th><th>位置</th><th>特色</th><th>预订</th></tr>
+        <tr><td><strong>Jack's Point</strong></td><td>皇后镇</td><td>南岛第1</td><td><a href="https://www.jackspoint.com/golf" target="_blank" class="nav-link">预订</a></td></tr>
+        <tr><td><strong>Millbrook</strong></td><td>箭镇</td><td>27洞</td><td><a href="https://www.millbrookresort.com/golf/" target="_blank" class="nav-link">预订</a></td></tr>
+        <tr><td><strong>Wanaka GC</strong></td><td>瓦纳卡</td><td>湖景</td><td><a href="https://www.wanakagolfclub.co.nz/" target="_blank" class="nav-link">预订</a></td></tr>
+    </table>
+</div>
+
+<div class="section-card">
+    <h2>🚗 自驾提示</h2>
+    <div class="info-grid">
+        <div class="info-item"><div class="label">行驶方向</div><div class="value">靠左行驶！</div></div>
+        <div class="info-item"><div class="label">高速限速</div><div class="value">100km/h</div></div>
+        <div class="info-item"><div class="label">城镇限速</div><div class="value">50km/h</div></div>
+        <div class="info-item"><div class="label">入境申报</div><div class="value">NZTD APP提前24h</div></div>
+    </div>
+</div>
+
+<div class="section-card">
+    <h2>💰 预算参考（人民币/人）</h2>
+    <table class="cmp">
+        <tr><th>项目</th><th>经济型</th><th>舒适型</th></tr>
+        <tr><td>机票</td><td>~6,000</td><td>~8,000</td></tr>
+        <tr><td>租车7天</td><td>~3,000</td><td>~4,500</td></tr>
+        <tr><td>住宿7晚</td><td>~5,000</td><td>~9,000</td></tr>
+        <tr><td>门票体验</td><td>~3,000</td><td>~5,000</td></tr>
+        <tr><td>餐饮</td><td>~2,500</td><td>~4,000</td></tr>
+        <tr><td>油费</td><td>~1,200</td><td>~1,200</td></tr>
+        <tr><td><strong>合计</strong></td><td class="good"><strong>~20,700</strong></td><td><strong>~31,700</strong></td></tr>
+    </table>
+</div>
+
+<div class="footer">
+    <p>🗺️ 新西兰南岛7天环线自驾路书 | v9.0</p>
+    <p>全程自驾 · 不走回头路 · 支持编辑和导出</p>
+    <p>祝旅途愉快！🇳🇿</p>
+</div>
+
+</div>
+
+<!-- Edit Modal -->
+<div class="modal-overlay" id="editModal">
+    <div class="modal">
+        <div class="modal-header">
+            <h3 id="editModalTitle">编辑</h3>
+            <button class="modal-close" onclick="closeModal('editModal')">&times;</button>
+        </div>
+        <div class="modal-body" id="editModalBody"></div>
+        <div class="modal-actions" id="editModalActions">
+            <button class="modal-btn secondary" onclick="closeModal('editModal')">取消</button>
+            <button class="modal-btn primary" id="editSaveBtn" onclick="saveEdit()">保存</button>
+        </div>
+    </div>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet-polylinedecorator@1.6.0/dist/leaflet.polylineDecorator.js"></script>
+<script>
+// ============= DATA =============
+var daysData = [
+    {
+        id: 0, title: 'Day 0（4月30日）墨尔本转机 11小时游玩', drive: '—', km: '—', stay: '当晚飞基督城',
+        image: 'https://i.imgur.com/qmSF7Xr.jpeg', imageAlt: '普芬比利蒸汽小火车', imageCaption: '墨尔本 · 普芬比利蒸汽小火车',
+        tags: ['07:20 抵达墨尔本', '蒸汽小火车', '看袋鼠', '18:40 飞基督城'],
+        tagTypes: ['time','spot','spot','time'],
+        spots: [
+            { time: '07:20', name: '抵达墨尔本机场', note: '出关+取行李约30-45min' },
+            { time: '08:15', name: '打车前往 Flinders Street Station', note: 'Uber约30min，AUD 50-60' },
+            { time: '09:00', name: '市区打卡：涂鸦巷 Hosier Lane', note: '步行可达' },
+            { time: '10:30-12:30', name: '🚂 A线：普芬比利蒸汽小火车', note: 'Belgrave↔Lakeside往返2h，成人$61' },
+            { time: '10:00-12:00', name: '🦘 B线：免费看野生袋鼠', note: '超高性价比替代方案' },
+            { time: '13:00', name: '市区午餐 + 咖啡', note: '墨尔本咖啡文化全球顶级' },
+            { time: '15:00', name: '返回机场', note: '提前3小时到机场' },
+            { time: '18:40', name: '起飞 → 基督城', note: '5月1日 00:10 抵达' }
+        ],
+        experiences: [
+            { icon: '🚂', title: '普芬比利蒸汽小火车（A线·强烈推荐）', desc: '百年蒸汽火车穿越丹德农山脉雨林。坐右侧！出发3分钟经过网红木桥大拐弯。需提前2周官网预订，旺季提前1个月。', price: 'AUD 61/人', link: 'https://puffingbilly.com.au/buy' },
+            { icon: '🦘', title: '免费看野生袋鼠（B线·高性价比）', desc: '免费看袋鼠+深度体验墨尔本咖啡文化。来源：小红书 @Sweetttttt「在墨尔本转机最值的一笔！免费看袋鼠」184赞', price: '免费', link: '' }
+        ],
+        accommodation: [{name: '当晚飞往基督城，无需住宿', url: ''}],
+        navLink: ''
+    },
+    {
+        id: 1, title: 'Day 1（5月1日）基督城 → 特卡波湖', drive: '3h', km: '230km', stay: '住特卡波',
+        image: 'https://i.imgur.com/z4mSUzL.jpeg', imageAlt: '特卡波湖', imageCaption: '特卡波湖 - 世界最佳观星地之一',
+        tags: ['00:10 抵达', '07:00 取车', '好牧羊人教堂', 'Astro咖啡馆', 'Tekapo Springs'],
+        tagTypes: ['time','time','spot','spot','spot'],
+        spots: [
+            { time: '00:10', name: '抵达基督城机场', note: '' },
+            { time: '07:00-09:00', name: '机场租车点取车', note: '约2h' },
+            { time: '中午', name: 'Astro 咖啡馆打卡', note: '山顶360度湖景' },
+            { time: '下午', name: '好牧羊人教堂拍照', note: '日落最美' },
+            { time: '傍晚', name: 'Tekapo Springs 星空温泉', note: 'NZD 35-45' }
+        ],
+        experiences: [
+            { icon: '♨️', title: 'Tekapo Springs 星空温泉', desc: '在温泉池中仰望南半球星空', price: 'NZD 35-45', link: 'https://tekaposprings.co.nz/' }
+        ],
+        accommodation: [
+            {name: 'Peppers Bluewater Resort', url: 'https://www.booking.com/hotel/nz/peppers-bluewater-resort.html'},
+            {name: 'Lake Tekapo Lodge', url: 'https://www.laketekapolodge.co.nz/'}
+        ],
+        navLink: 'https://www.google.com/maps/dir/Christchurch+Airport/Lake+Tekapo'
+    },
+    {
+        id: 2, title: 'Day 2（5月2日）特卡波 → 库克山', drive: '45min', km: '105km', stay: '住库克山',
+        image: 'https://i.imgur.com/ZzPwNsg.jpeg', imageAlt: '库克山', imageCaption: '库克山 - 新西兰最高峰',
+        tags: ['普卡基湖', '三文鱼农场', 'Hooker Valley', '直升机冰川'],
+        tagTypes: ['spot','spot','spot','spot'],
+        spots: [
+            { time: '上午', name: '普卡基湖 "蓝色牛奶湖"', note: '免费，推荐Peter\'s Lookout' },
+            { time: '中午', name: 'Mt Cook Alpine Salmon 三文鱼', note: 'NZD 20-40' },
+            { time: '下午', name: 'Hooker Valley Track 徒步', note: '3小时往返，三座吊桥' }
+        ],
+        experiences: [
+            { icon: '🚁', title: '直升机冰川徒步', desc: '乘坐直升机降落在塔斯曼冰川', price: 'NZD 699起', link: 'http://helicopter.co.nz/aoraki-mount-cook/tasman-glacier-heli-hike' }
+        ],
+        accommodation: [
+            {name: 'The Hermitage Hotel（有观星台）', url: 'https://www.booking.com/hotel/nz/the-hermitage.html'},
+            {name: 'Aoraki Court Motel', url: 'https://www.booking.com/hotel/nz/aoraki-court-motel.html'}
+        ]
+    },
+    {
+        id: 3, title: 'Day 3（5月3日）库克山 → 瓦纳卡 → 皇后镇', drive: '3h', km: '220km', stay: '住皇后镇',
+        image: 'https://i.imgur.com/ulDybA6.jpeg', imageAlt: '瓦纳卡湖', imageCaption: '瓦纳卡湖 - 孤独的树',
+        tags: ['Lindis Pass', '孤独的树', '瓦纳卡湖', 'Deer Park'],
+        tagTypes: ['spot','spot','spot','spot'],
+        spots: [
+            { time: '上午', name: 'Lindis Pass 高山公路', note: '沿途风景壮丽' },
+            { time: '中午', name: '打卡瓦纳卡湖 "孤独的树"', note: '网红打卡点' },
+            { time: '可选', name: '⛳ Wanaka Golf Club', note: 'NZD 75' },
+            { time: '傍晚', name: 'Deer Park Heights', note: '看动物+俯瞰皇后镇' }
+        ],
+        experiences: [],
+        accommodation: [
+            {name: 'Novotel Queenstown Lakeside', url: 'https://www.booking.com/hotel/nz/gardens-queenstown.html'},
+            {name: 'Queenstown Park Hotel', url: 'https://www.booking.com/hotel/nz/queenstown-park-boutique.html'}
+        ]
+    },
+    {
+        id: 4, title: 'Day 4（5月4日）皇后镇深度游', drive: '1h', km: '80km', stay: '住皇后镇',
+        image: 'https://i.imgur.com/HIWlpey.jpeg', imageAlt: '皇后镇', imageCaption: '皇后镇 - 瓦卡蒂普湖',
+        tags: ['天空缆车', '滑板车', '高尔夫', 'Onsen温泉'],
+        tagTypes: ['spot','spot','spot','spot'],
+        spots: [
+            { time: '上午', name: '天空缆车 + 滑板车', note: '俯瞰皇后镇全景' },
+            { time: '下午', name: "⛳ Jack's Point / Millbrook 高尔夫", note: '南岛顶级球场' },
+            { time: '傍晚', name: '♨️ Onsen 悬崖温泉', note: 'NZD 125起 ⚠️需提前1月订' },
+            { time: '晚餐', name: 'Fergburger 网红汉堡', note: '24h营业' }
+        ],
+        experiences: [
+            { icon: '🚁', title: '直升机观光', desc: '飞越卓越山脉，俯瞰皇后镇', price: 'NZD 299起', link: 'https://www.helicopter.co.nz/chinese' }
+        ],
+        accommodation: [
+            {name: 'Novotel Queenstown Lakeside', url: 'https://www.booking.com/hotel/nz/gardens-queenstown.html'},
+            {name: 'Queenstown Park Hotel', url: 'https://www.booking.com/hotel/nz/queenstown-park-boutique.html'}
+        ]
+    },
+    {
+        id: 5, title: 'Day 5（5月5日）皇后镇悠闲日', drive: '0.5h', km: '—', stay: '住皇后镇',
+        image: '', imageAlt: '', imageCaption: '',
+        tags: ['箭镇', 'TSS蒸汽船', 'Walter Peak农场'],
+        tagTypes: ['spot','spot','spot'],
+        spots: [
+            { time: '上午', name: '箭镇 Arrowtown 半日游', note: '华人淘金遗迹' },
+            { time: '下午', name: '🚢 TSS 蒸汽船 + Walter Peak 农场 BBQ', note: 'NZD 139起' }
+        ],
+        experiences: [
+            { icon: '🚢', title: 'TSS 蒸汽船 + Walter Peak 农场', desc: '百年蒸汽船穿越瓦卡蒂普湖', price: 'NZD 139-159', link: 'https://www.realjourneys.co.nz/' }
+        ],
+        accommodation: [
+            {name: 'Novotel Queenstown Lakeside', url: 'https://www.booking.com/hotel/nz/gardens-queenstown.html'},
+            {name: 'Queenstown Park Hotel', url: 'https://www.booking.com/hotel/nz/queenstown-park-boutique.html'}
+        ]
+    },
+    {
+        id: 6, title: 'Day 6（5月6日）峡湾一日游', drive: '6h', km: '400km', stay: '住蒂阿瑙',
+        image: 'https://i.imgur.com/muiXazh.jpeg', imageAlt: '米尔福德峡湾', imageCaption: '米尔福德峡湾 - 世界第八大自然奇迹',
+        tags: ['06:00 出发', '蒂阿瑙', '镜湖', '米尔福德峡湾', '荷马隧道'],
+        tagTypes: ['time','spot','spot','spot','spot'],
+        spots: [
+            { time: '06:00', name: '皇后镇出发 → 蒂阿瑙', note: '2小时' },
+            { time: '08:00', name: '米尔福德公路 → 镜湖、荷马隧道', note: '多个观景点' },
+            { time: '10:00-14:00', name: '🚢 米尔福德峡湾游船', note: 'NZD 85-150' },
+            { time: '下午', name: '返回蒂阿瑙', note: '带防雨外套' }
+        ],
+        experiences: [
+            { icon: '🚢', title: '米尔福德峡湾游船', desc: '穿越峡湾观赏悬崖、瀑布和野生动物', price: 'NZD 85-150', link: 'https://www.realnz.com/en/experiences/day-cruises/milford-sound-cruise/' }
+        ],
+        accommodation: [
+            {name: 'Distinction Te Anau Hotel', url: 'https://www.booking.com/hotel/nz/distinction-te-anau-villas.html'}
+        ]
+    },
+    {
+        id: 7, title: 'Day 7（5月7日）东海岸线返程', drive: '7h', km: '550km', stay: '住基督城机场',
+        image: 'https://i.imgur.com/dLHNQAu.jpeg', imageAlt: '达尼丁', imageCaption: '达尼丁 - 拉纳克城堡',
+        tags: ['06:00 出发', '达尼丁火车站', '八角广场', '摩拉基大圆石'],
+        tagTypes: ['time','spot','spot','spot'],
+        spots: [
+            { time: '06:00', name: '蒂阿瑙出发 → 达尼丁', note: '2.5小时' },
+            { time: '09:00-11:00', name: '达尼丁市区：火车站、八角广场、第一教堂', note: '拍照打卡' },
+            { time: '12:30-14:00', name: '摩拉基大圆石', note: "推荐旁边Fleur's Place海鲜" },
+            { time: '傍晚', name: '抵达基督城 → 还车', note: '检查油量' }
+        ],
+        experiences: [],
+        accommodation: [
+            {name: 'Novotel Christchurch Airport（步行2分钟到航站楼）', url: 'https://www.booking.com/hotel/nz/novotel-christchurch-airport.html'}
+        ]
+    }
+];
+
+var foodData = [
+    { id: 'f1', name: 'Astro Cafe', type: '☕ 咖啡/轻食', city: 'tekapo', cityLabel: '特卡波', desc: '全球最美咖啡馆之一！山顶360度俯瞰特卡波湖。', price: 'NZD 15-30', star: true, mapQuery: 'Astro+Cafe+Lake+Tekapo' },
+    { id: 'f2', name: 'Mt Cook Alpine Salmon', type: '🍣 三文鱼', city: 'tekapo', cityLabel: '库克山路', desc: '小红书万赞！全NZ最好吃的三文鱼，现捞现切。', price: 'NZD 20-40', star: true, mapQuery: 'Mt+Cook+Alpine+Salmon' },
+    { id: 'f3', name: 'The Better Batter', type: '🍟 炸鱼薯条', city: 'tekapo', cityLabel: '特卡波', desc: '湖边餐车炸鱼薯条，外酥里嫩。', price: 'NZD 15-20', star: false, mapQuery: 'The+Better+Batter+Tekapo' },
+    { id: 'f4', name: 'Kohan 湖畔日料', type: '🍱 日料', city: 'tekapo', cityLabel: '特卡波', desc: '特卡波唯一日料，窗外就是湖景。', price: 'NZD 30-50', star: false, mapQuery: 'Kohan+Restaurant+Lake+Tekapo' },
+    { id: 'f5', name: 'Kika', type: '🍽️ 创意料理', city: 'wanaka', cityLabel: '瓦纳卡', desc: '瓦纳卡排名第一！Sharing plate风格。', price: 'NZD 50-80', star: true, mapQuery: 'Kika+Wanaka' },
+    { id: 'f6', name: 'Big Fig', type: '🥗 Brunch', city: 'wanaka', cityLabel: '瓦纳卡', desc: '早午餐颜值爆表，窗外湖景加分。', price: 'NZD 20-35', star: false, mapQuery: 'Big+Fig+Wanaka' },
+    { id: 'f7', name: 'Fergburger', type: '🍔 汉堡', city: 'queenstown', cityLabel: '皇后镇', desc: '南半球最好吃的汉堡！24h营业，凌晨不排队。', price: 'NZD 15-25', star: true, mapQuery: 'Fergburger+Queenstown' },
+    { id: 'f8', name: 'Patagonia Chocolates', type: '🍫 冰淇淋', city: 'queenstown', cityLabel: '皇后镇', desc: '手工巧克力+冰淇淋，湖边吃一口治愈。', price: 'NZD 8-15', star: true, mapQuery: 'Patagonia+Chocolates+Queenstown' },
+    { id: 'f9', name: 'Rata', type: '🍽️ Fine Dining', city: 'queenstown', cityLabel: '皇后镇', desc: '米其林级别！主厨Josh Emett。', price: 'NZD 60-100', star: true, mapQuery: 'Rata+Restaurant+Queenstown' },
+    { id: 'f10', name: 'Devil Burger', type: '🍔 汉堡', city: 'queenstown', cityLabel: '皇后镇', desc: 'Fergburger劲敌，不排队，口味不输。', price: 'NZD 12-20', star: false, mapQuery: 'Devil+Burger+Queenstown' },
+    { id: 'f11', name: 'Cookie Time', type: '🍪 甜品', city: 'queenstown', cityLabel: '皇后镇', desc: 'NZ国民饼干！现烤巧克力曲奇。', price: 'NZD 5-10', star: false, mapQuery: 'Cookie+Time+Queenstown' },
+    { id: 'f12', name: 'Etrusco at the Savoy', type: '🍝 意大利菜', city: 'dunedin', cityLabel: '达尼丁', desc: '达尼丁排名第一！手工意面和披萨。', price: 'NZD 30-50', star: true, mapQuery: 'Etrusco+at+the+Savoy+Dunedin' },
+    { id: 'f13', name: "Fleur's Place", type: '🐟 海鲜', city: 'dunedin', cityLabel: '摩拉基', desc: '大圆石旁边必去海鲜！Blue Cod超鲜。', price: 'NZD 30-50', star: false, mapQuery: "Fleur's+Place+Moeraki" },
+    { id: 'f14', name: 'The Good Oil', type: '☕ Brunch', city: 'dunedin', cityLabel: '达尼丁', desc: '达尼丁最火早午餐，本地人周末必去。', price: 'NZD 15-25', star: false, mapQuery: 'The+Good+Oil+Dunedin' },
+    { id: 'f15', name: 'C1 Espresso', type: '☕ 创意咖啡', city: 'christchurch', cityLabel: '基督城', desc: '小红书爆火！气动管道送餐，咖啡从天花板飞来。', price: 'NZD 15-25', star: true, mapQuery: 'C1+Espresso+Christchurch' },
+    { id: 'f16', name: 'Black Burger', type: '🍔 创意汉堡', city: 'christchurch', cityLabel: '基督城', desc: '创意汉堡味觉炸弹！获奖餐厅。', price: 'NZD 15-25', star: false, mapQuery: 'Black+Burger+Christchurch' },
+    { id: 'f17', name: '电车餐厅 Tramway', type: '🚃 西餐', city: 'christchurch', cityLabel: '基督城', desc: '在移动的复古电车上用餐！', price: 'NZD 80-120', star: false, mapQuery: 'Christchurch+Tramway+Restaurant' },
+    { id: 'f18', name: "乡村庄 Daphne's", type: '🥟 中餐', city: 'christchurch', cityLabel: '基督城', desc: '基督城最好的中餐厅，评分4.9！', price: 'NZD 20-35', star: false, mapQuery: "Daphne's+Restaurant+Christchurch" }
+];
+
+var currentEditContext = null;
+
+// ============= RENDER =============
+function renderTimeline() {
+    var c = document.getElementById('tlContainer');
+    var html = '<div class="tl-line"></div>';
+    for (var i = 0; i < daysData.length; i++) {
+        var d = daysData[i];
+        var tagsHtml = '';
+        for (var j = 0; j < d.tags.length; j++) {
+            tagsHtml += '<span class="tl-tag ' + (d.tagTypes[j] || 'spot') + '">' + d.tags[j] + '</span>';
+        }
+        html += '<div class="tl-day-header" id="tlHead' + d.id + '" onclick="toggleDay(' + d.id + ')">' +
+            '<div class="tl-day-top"><div class="tl-day-title">' + d.title + '</div>' +
+            '<div class="tl-day-meta">🚗 ' + d.drive + ' · ' + d.km + ' <span class="tl-arrow" id="tlArrow' + d.id + '">▼</span></div></div>' +
+            '<div class="tl-tags">' + tagsHtml + '</div></div>';
+        // Detail
+        html += '<div class="tl-detail" id="tlDetail' + d.id + '"><div class="day-content">';
+        if (d.image) {
+            html += '<div class="day-img"><img src="' + d.image + '" alt="' + d.imageAlt + '"><p>' + d.imageCaption + '</p></div>';
+        }
+        html += '<div class="day-body">';
+        // Spots
+        html += '<div class="day-section"><h4>🛣️ 行程</h4>';
+        html += renderSpots(d.id, d.spots);
+        html += '<button class="add-item-btn" onclick="openAddSpot(' + d.id + ')">＋ 新增景点</button>';
+        html += '</div>';
+        // Experiences
+        for (var k = 0; k < d.experiences.length; k++) {
+            var e = d.experiences[k];
+            html += '<div class="experience-box"><h5>' + e.icon + ' ' + e.title + '</h5><p>' + e.desc + '</p>' +
+                '<div class="booking-info">💰 ' + e.price + ' | <a href="' + e.link + '" target="_blank">🔗 预订</a></div></div>';
+        }
+        // Navigation
+        if (d.navLink) {
+            html += '<div class="tip-box"><a href="' + d.navLink + '" target="_blank" class="nav-link">🗺️ Google Maps 导航</a></div>';
+        }
+        // Accommodation (editable, with booking links)
+        html += '<div class="accommodation"><h4>🏨 住宿：' + d.stay + ' <button class="spot-action-btn" style="opacity:1;margin-left:8px;" onclick="event.stopPropagation();openEditStay(' + d.id + ')">编辑</button></h4><ul>';
+        for (var m = 0; m < d.accommodation.length; m++) {
+            var accom = d.accommodation[m];
+            var accomName = typeof accom === 'string' ? accom : accom.name;
+            var accomUrl = typeof accom === 'string' ? '' : (accom.url || '');
+            html += '<li style="display:flex;justify-content:space-between;align-items:center;">';
+            html += '<span style="display:flex;align-items:center;gap:8px;flex:1;">' + accomName;
+            if (accomUrl) {
+                html += ' <a href="' + accomUrl + '" target="_blank" class="nav-link" style="font-size:12px;white-space:nowrap;background:#e3f2fd;padding:2px 10px;border-radius:12px;text-decoration:none;" onclick="event.stopPropagation()">🔗 预订</a>';
+            }
+            html += '</span>';
+            html += ' <span class="spot-actions" style="opacity:1;"><button class="spot-action-btn delete" onclick="event.stopPropagation();deleteAccom(' + d.id + ',' + m + ')">删除</button></span></li>';
+        }
+        html += '</ul><button class="add-item-btn" style="margin-top:6px;" onclick="openAddAccom(' + d.id + ')">＋ 新增住宿</button></div>';
+        html += '</div></div></div>';
+    }
+    c.innerHTML = html;
+}
+
+function renderSpots(dayId, spots) {
+    var html = '';
+    for (var i = 0; i < spots.length; i++) {
+        var s = spots[i];
+        html += '<div class="spot-item" data-day="' + dayId + '" data-idx="' + i + '">' +
+            '<div class="spot-info"><span class="time">' + s.time + '</span><span class="name">' + s.name + '</span>' +
+            (s.note ? '<span class="duration">' + s.note + '</span>' : '') + '</div>' +
+            '<div class="spot-actions">' +
+            '<button class="spot-action-btn" onclick="event.stopPropagation();openEditSpot(' + dayId + ',' + i + ')">编辑</button>' +
+            '<button class="spot-action-btn delete" onclick="event.stopPropagation();deleteSpot(' + dayId + ',' + i + ')">删除</button>' +
+            '</div></div>';
+    }
+    return html;
+}
+
+function renderFood(filter) {
+    filter = filter || 'all';
+    var list = document.getElementById('foodList');
+    var html = '';
+    for (var i = 0; i < foodData.length; i++) {
+        var f = foodData[i];
+        if (filter !== 'all' && f.city !== filter) continue;
+        html += '<div class="food-card" data-city="' + f.city + '">' +
+            '<div class="food-actions">' +
+            '<button class="spot-action-btn" onclick="openEditFood(\'' + f.id + '\')">编辑</button>' +
+            '<button class="spot-action-btn delete" onclick="deleteFood(\'' + f.id + '\')">删除</button>' +
+            '</div>' +
+            '<h4>' + f.name + (f.star ? ' ⭐' : '') + '</h4>' +
+            '<div class="food-type">' + f.type + ' · ' + f.cityLabel + '</div>' +
+            '<div class="food-desc">' + f.desc + '</div>' +
+            '<div class="food-price">💰 ' + f.price + '</div>' +
+            '<div class="food-nav"><a href="https://www.google.com/maps/search/' + f.mapQuery + '" target="_blank">📍 Google Maps 导航</a></div>' +
+            '</div>';
+    }
+    list.innerHTML = html;
+}
+
+function renderFoodFilters() {
+    var cities = [{k:'all',l:'全部'},{k:'tekapo',l:'特卡波/库克山'},{k:'wanaka',l:'瓦纳卡'},{k:'queenstown',l:'皇后镇'},{k:'dunedin',l:'达尼丁'},{k:'christchurch',l:'基督城'}];
+    var html = '';
+    for (var i = 0; i < cities.length; i++) {
+        html += '<button class="food-filter' + (i === 0 ? ' active' : '') + '" onclick="filterFood(\'' + cities[i].k + '\',this)">' + cities[i].l + '</button>';
+    }
+    document.getElementById('foodFilters').innerHTML = html;
+}
+
+// ============= INTERACTIONS =============
+function toggleSection(name) {
+    if (name === 'timeline') {
+        var el = document.getElementById('timelineSection');
+        el.style.display = el.style.display === 'none' ? 'block' : 'none';
+    } else if (name === 'food') {
+        var el = document.getElementById('foodSection');
+        var btn = document.getElementById('foodBtn');
+        if (el.style.display === 'none' || el.style.display === '') {
+            el.style.display = 'block';
+            btn.style.background = '#ff9800'; btn.style.color = 'white';
+            el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        } else {
+            el.style.display = 'none';
+            btn.style.background = ''; btn.style.color = '';
+        }
+    }
+}
+
+function toggleDay(dayId) {
+    var detail = document.getElementById('tlDetail' + dayId);
+    var arrow = document.getElementById('tlArrow' + dayId);
+    var head = document.getElementById('tlHead' + dayId);
+    var isOpen = detail.classList.contains('show');
+    // Close all
+    document.querySelectorAll('.tl-detail').forEach(function(el) { el.classList.remove('show'); });
+    document.querySelectorAll('.tl-arrow').forEach(function(el) { el.classList.remove('open'); el.textContent = '▼'; });
+    document.querySelectorAll('.tl-day-header').forEach(function(el) { el.classList.remove('expanded'); });
+    if (!isOpen) {
+        detail.classList.add('show');
+        arrow.classList.add('open');
+        arrow.textContent = '▲';
+        head.classList.add('expanded');
+    }
+}
+
+function filterFood(city, btn) {
+    document.querySelectorAll('.food-filter').forEach(function(el) { el.classList.remove('active'); });
+    if (btn) btn.classList.add('active');
+    renderFood(city);
+}
+
+// ============= EDIT SPOTS =============
+function openEditSpot(dayId, idx) {
+    var day = daysData.find(function(d) { return d.id === dayId; });
+    var spot = day.spots[idx];
+    currentEditContext = { type: 'spot', dayId: dayId, idx: idx };
+    document.getElementById('editModalTitle').textContent = '编辑景点';
+    document.getElementById('editModalBody').innerHTML =
+        '<div class="form-group"><label>时间</label><input id="editTime" value="' + spot.time + '"></div>' +
+        '<div class="form-group"><label>名称</label><input id="editName" value="' + spot.name.replace(/"/g, '&quot;') + '"></div>' +
+        '<div class="form-group"><label>备注</label><input id="editNote" value="' + (spot.note || '').replace(/"/g, '&quot;') + '"></div>';
+    document.getElementById('editModal').classList.add('active');
+}
+
+function openAddSpot(dayId) {
+    currentEditContext = { type: 'addSpot', dayId: dayId };
+    document.getElementById('editModalTitle').textContent = '新增景点';
+    document.getElementById('editModalBody').innerHTML =
+        '<div class="form-group"><label>时间</label><input id="editTime" placeholder="如：10:00"></div>' +
+        '<div class="form-group"><label>名称</label><input id="editName" placeholder="景点名称"></div>' +
+        '<div class="form-group"><label>备注</label><input id="editNote" placeholder="备注信息"></div>';
+    document.getElementById('editModal').classList.add('active');
+}
+
+function deleteSpot(dayId, idx) {
+    if (!confirm('确定删除这个景点吗？')) return;
+    var day = daysData.find(function(d) { return d.id === dayId; });
+    day.spots.splice(idx, 1);
+    renderTimeline();
+    toggleDay(dayId);
+    saveData();
+}
+
+// ============= EDIT ACCOMMODATION =============
+function openEditStay(dayId) {
+    var day = daysData.find(function(d) { return d.id === dayId; });
+    currentEditContext = { type: 'stay', dayId: dayId };
+    document.getElementById('editModalTitle').textContent = '编辑住宿信息';
+    var html = '<div class="form-group"><label>住宿地点概述</label><input id="editStayLabel" value="' + day.stay.replace(/"/g, '&quot;') + '"></div>';
+    html += '<p style="font-size:12px;color:#999;margin-bottom:12px;">下方逐条编辑具体酒店：</p>';
+    for (var i = 0; i < day.accommodation.length; i++) {
+        var accom = day.accommodation[i];
+        var accomName = typeof accom === 'string' ? accom : accom.name;
+        var accomUrl = typeof accom === 'string' ? '' : (accom.url || '');
+        html += '<div class="form-group" style="display:flex;gap:8px;align-items:end;">' +
+            '<div style="flex:1;"><label>酒店 ' + (i + 1) + '</label><input class="editAccomName" value="' + accomName.replace(/"/g, '&quot;') + '"></div>' +
+            '<div style="flex:1;"><label>预订链接</label><input class="editAccomUrl" value="' + accomUrl.replace(/"/g, '&quot;') + '" placeholder="https://..."></div>' +
+            '</div>';
+    }
+    document.getElementById('editModalBody').innerHTML = html;
+    document.getElementById('editModal').classList.add('active');
+}
+
+function openAddAccom(dayId) {
+    currentEditContext = { type: 'addAccom', dayId: dayId };
+    document.getElementById('editModalTitle').textContent = '新增住宿';
+    document.getElementById('editModalBody').innerHTML =
+        '<div class="form-group"><label>酒店名称</label><input id="editName" placeholder="如：Hilton Queenstown"></div>' +
+        '<div class="form-group"><label>预订链接（可选）</label><input id="editNote" placeholder="https://..."></div>';
+    document.getElementById('editModal').classList.add('active');
+}
+
+function deleteAccom(dayId, idx) {
+    if (!confirm('确定删除这个住宿吗？')) return;
+    var day = daysData.find(function(d) { return d.id === dayId; });
+    day.accommodation.splice(idx, 1);
+    renderTimeline();
+    toggleDay(dayId);
+    saveData();
+}
+
+// ============= EDIT FOOD =============
+function openEditFood(foodId) {
+    var food = foodData.find(function(f) { return f.id === foodId; });
+    currentEditContext = { type: 'food', foodId: foodId };
+    document.getElementById('editModalTitle').textContent = '编辑餐厅';
+    document.getElementById('editModalBody').innerHTML =
+        '<div class="form-group"><label>名称</label><input id="editName" value="' + food.name.replace(/"/g, '&quot;') + '"></div>' +
+        '<div class="form-group"><label>类型</label><input id="editFoodType" value="' + food.type + '"></div>' +
+        '<div class="form-group"><label>城市</label><select id="editCity"><option value="tekapo"' + (food.city === 'tekapo' ? ' selected' : '') + '>特卡波/库克山</option><option value="wanaka"' + (food.city === 'wanaka' ? ' selected' : '') + '>瓦纳卡</option><option value="queenstown"' + (food.city === 'queenstown' ? ' selected' : '') + '>皇后镇</option><option value="dunedin"' + (food.city === 'dunedin' ? ' selected' : '') + '>达尼丁</option><option value="christchurch"' + (food.city === 'christchurch' ? ' selected' : '') + '>基督城</option></select></div>' +
+        '<div class="form-group"><label>描述</label><textarea id="editDesc" rows="2">' + food.desc + '</textarea></div>' +
+        '<div class="form-group"><label>价格</label><input id="editPrice" value="' + food.price + '"></div>' +
+        '<div class="form-group"><label>Google Maps搜索词</label><input id="editMap" value="' + food.mapQuery + '"></div>';
+    document.getElementById('editModal').classList.add('active');
+}
+
+function openAddFood() {
+    currentEditContext = { type: 'addFood' };
+    document.getElementById('editModalTitle').textContent = '新增餐厅';
+    document.getElementById('editModalBody').innerHTML =
+        '<div class="form-group"><label>名称</label><input id="editName" placeholder="餐厅名称"></div>' +
+        '<div class="form-group"><label>类型</label><input id="editFoodType" placeholder="如：🍔 汉堡"></div>' +
+        '<div class="form-group"><label>城市</label><select id="editCity"><option value="tekapo">特卡波/库克山</option><option value="wanaka">瓦纳卡</option><option value="queenstown">皇后镇</option><option value="dunedin">达尼丁</option><option value="christchurch">基督城</option></select></div>' +
+        '<div class="form-group"><label>描述</label><textarea id="editDesc" rows="2" placeholder="一句话推荐"></textarea></div>' +
+        '<div class="form-group"><label>价格</label><input id="editPrice" placeholder="如：NZD 20-30"></div>' +
+        '<div class="form-group"><label>Google Maps搜索词</label><input id="editMap" placeholder="如：Restaurant+Name+City"></div>';
+    document.getElementById('editModal').classList.add('active');
+}
+
+function deleteFood(foodId) {
+    if (!confirm('确定删除这个餐厅吗？')) return;
+    foodData = foodData.filter(function(f) { return f.id !== foodId; });
+    renderFood('all');
+    document.querySelectorAll('.food-filter').forEach(function(el) { el.classList.remove('active'); });
+    document.querySelector('.food-filter').classList.add('active');
+    saveData();
+}
+
+// ============= SAVE =============
+function saveEdit() {
+    var ctx = currentEditContext;
+    if (!ctx) return;
+    if (ctx.type === 'spot') {
+        var day = daysData.find(function(d) { return d.id === ctx.dayId; });
+        day.spots[ctx.idx] = { time: document.getElementById('editTime').value, name: document.getElementById('editName').value, note: document.getElementById('editNote').value };
+        renderTimeline(); toggleDay(ctx.dayId);
+    } else if (ctx.type === 'addSpot') {
+        var day = daysData.find(function(d) { return d.id === ctx.dayId; });
+        day.spots.push({ time: document.getElementById('editTime').value, name: document.getElementById('editName').value, note: document.getElementById('editNote').value });
+        renderTimeline(); toggleDay(ctx.dayId);
+    } else if (ctx.type === 'food') {
+        var food = foodData.find(function(f) { return f.id === ctx.foodId; });
+        var cityLabels = { tekapo: '特卡波/库克山', wanaka: '瓦纳卡', queenstown: '皇后镇', dunedin: '达尼丁', christchurch: '基督城' };
+        food.name = document.getElementById('editName').value;
+        food.type = document.getElementById('editFoodType').value;
+        food.city = document.getElementById('editCity').value;
+        food.cityLabel = cityLabels[food.city] || food.city;
+        food.desc = document.getElementById('editDesc').value;
+        food.price = document.getElementById('editPrice').value;
+        food.mapQuery = document.getElementById('editMap').value;
+        renderFood('all');
+    } else if (ctx.type === 'stay') {
+        var day = daysData.find(function(d) { return d.id === ctx.dayId; });
+        day.stay = document.getElementById('editStayLabel').value;
+        var nameInputs = document.querySelectorAll('.editAccomName');
+        var urlInputs = document.querySelectorAll('.editAccomUrl');
+        day.accommodation = [];
+        for (var i = 0; i < nameInputs.length; i++) {
+            if (nameInputs[i].value.trim()) {
+                day.accommodation.push({name: nameInputs[i].value.trim(), url: (urlInputs[i] ? urlInputs[i].value.trim() : '')});
+            }
+        }
+        renderTimeline(); toggleDay(ctx.dayId);
+    } else if (ctx.type === 'addAccom') {
+        var day = daysData.find(function(d) { return d.id === ctx.dayId; });
+        var name = document.getElementById('editName').value;
+        var link = document.getElementById('editNote').value;
+        if (name) {
+            day.accommodation.push({name: name, url: link || ''});
+        }
+        }
+        renderTimeline(); toggleDay(ctx.dayId);
+    } else if (ctx.type === 'addFood') {
+        var cityLabels = { tekapo: '特卡波/库克山', wanaka: '瓦纳卡', queenstown: '皇后镇', dunedin: '达尼丁', christchurch: '基督城' };
+        var city = document.getElementById('editCity').value;
+        foodData.push({
+            id: 'f' + (Date.now()), name: document.getElementById('editName').value,
+            type: document.getElementById('editFoodType').value, city: city,
+            cityLabel: cityLabels[city] || city, desc: document.getElementById('editDesc').value,
+            price: document.getElementById('editPrice').value, star: false,
+            mapQuery: document.getElementById('editMap').value
+        });
+        renderFood('all');
+    }
+    closeModal('editModal');
+    saveData();
+}
+
+function closeModal(id) { document.getElementById(id).classList.remove('active'); currentEditContext = null; }
+
+// ============= HEADER BG =============
+function changeHeaderBg(input) {
+    if (input.files && input.files[0]) {
+        var reader = new FileReader();
+        reader.onload = function(e) {
+            document.getElementById('heroHeader').style.backgroundImage = "url('" + e.target.result + "')";
+        };
+        reader.readAsDataURL(input.files[0]);
+    }
+}
+
+// ============= MAP =============
+var mapInstance = null;
+var mapCities = [
+    { c: [-43.53,172.64], n: '基督城', d: '起/终', label: 'START', cl: '#1565c0' },
+    { c: [-44.00,170.48], n: '特卡波', d: 'D1', label: 'D1', cl: '#43a047' },
+    { c: [-43.61,170.10], n: '库克山', d: 'D2', label: 'D2', cl: '#43a047' },
+    { c: [-44.69,169.14], n: '瓦纳卡', d: 'D3', label: 'D3', cl: '#43a047' },
+    { c: [-45.03,168.66], n: '皇后镇', d: 'D3-5', label: 'D3-5', cl: '#43a047' },
+    { c: [-45.42,167.72], n: '蒂阿瑙', d: 'D6', label: 'D6', cl: '#ff9800' },
+    { c: [-44.64,167.90], n: '峡湾', d: 'D6', label: 'D6', cl: '#ff9800' },
+    { c: [-45.88,170.50], n: '达尼丁', d: 'D7', label: 'D7', cl: '#ff9800' },
+    { c: [-45.10,170.97], n: '奥马鲁', d: 'D7', label: 'D7', cl: '#ff9800' }
+];
+
+function initMap() {
+    mapInstance = L.map('map').setView([-44.5, 170.0], 6);
+    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '&copy; OSM', maxZoom: 18 }).addTo(mapInstance);
+
+    // Route polyline
+    var routeCoords = mapCities.map(function(ct) { return ct.c; });
+    routeCoords.push(mapCities[0].c); // close loop
+    var polyline = L.polyline(routeCoords, { color: '#e53935', weight: 5, opacity: 0.8 }).addTo(mapInstance);
+
+    // Direction arrows on route
+    L.polylineDecorator(polyline, {
+        patterns: [
+            {
+                offset: '5%',
+                repeat: '12%',
+                symbol: L.Symbol.arrowHead({
+                    pixelSize: 14,
+                    polygon: false,
+                    pathOptions: { stroke: true, color: '#b71c1c', weight: 3, opacity: 0.9 }
+                })
+            }
+        ]
+    }).addTo(mapInstance);
+
+    // City markers with Day labels
+    mapCities.forEach(function(ct) {
+        var icon = L.divIcon({
+            className: '',
+            html: '<div style="background:' + ct.cl + ';color:white;font-size:11px;font-weight:700;padding:3px 8px;border-radius:12px;border:2px solid white;box-shadow:0 2px 6px rgba(0,0,0,0.3);white-space:nowrap;text-align:center;line-height:1.2;">' + ct.label + '</div>',
+            iconSize: [60, 24],
+            iconAnchor: [30, 12]
+        });
+        L.marker(ct.c, { icon: icon }).addTo(mapInstance)
+            .bindPopup('<b>' + ct.n + '</b><br>' + ct.d);
+    });
+}
+
+function flyToCity(idx) {
+    if (!mapInstance) return;
+    var ct = mapCities[idx];
+    mapInstance.flyTo(ct.c, 11, { duration: 1.2 });
+    // Scroll map into view
+    document.getElementById('map').scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+// ============= DATA PERSISTENCE (CLOUD SYNC) =============
+var STORAGE_KEY = 'nz-travel-guide-v9';
+var CLOUD_URL = 'https://jsonblob.com/api/jsonBlob/019d3ee7-9932-7ea3-8c74-2202b608660d';
+var isSyncing = false;
+
+function showSyncStatus(msg, isError) {
+    var el = document.getElementById('syncStatus');
+    if (!el) {
+        el = document.createElement('div');
+        el.id = 'syncStatus';
+        el.style.cssText = 'position:fixed;bottom:20px;right:20px;padding:8px 16px;border-radius:20px;font-size:12px;z-index:999;transition:opacity 0.3s;box-shadow:0 2px 12px rgba(0,0,0,0.15);';
+        document.body.appendChild(el);
+    }
+    el.style.background = isError ? '#e53935' : '#43a047';
+    el.style.color = 'white';
+    el.textContent = msg;
+    el.style.opacity = '1';
+    setTimeout(function() { el.style.opacity = '0'; }, 2500);
+}
+
+function saveData() {
+    // Save locally first
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify({ days: daysData, food: foodData })); } catch(e) {}
+    // Then sync to cloud
+    saveToCloud();
+}
+
+function saveToCloud() {
+    if (isSyncing) return;
+    isSyncing = true;
+    showSyncStatus('☁️ 同步中...');
+    var payload = JSON.stringify({ days: daysData, food: foodData, lastUpdated: new Date().toISOString() });
+    fetch(CLOUD_URL, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: payload
+    }).then(function(r) {
+        isSyncing = false;
+        if (r.ok) showSyncStatus('✅ 已同步到云端');
+        else showSyncStatus('❌ 同步失败', true);
+    }).catch(function() {
+        isSyncing = false;
+        showSyncStatus('❌ 网络错误', true);
+    });
+}
+
+function loadFromCloud() {
+    return fetch(CLOUD_URL)
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+            if (data && data.days && data.days.length > 0) {
+                daysData = data.days;
+                foodData = data.food || foodData;
+                // Also save locally
+                try { localStorage.setItem(STORAGE_KEY, JSON.stringify({ days: daysData, food: foodData })); } catch(e) {}
+                return true;
+            }
+            return false;
+        }).catch(function() {
+            // Fallback to localStorage
+            return loadFromLocal();
+        });
+}
+
+function loadFromLocal() {
+    try {
+        var saved = localStorage.getItem(STORAGE_KEY);
+        if (saved) {
+            var d = JSON.parse(saved);
+            if (d.days) daysData = d.days;
+            if (d.food) foodData = d.food;
+            return true;
+        }
+    } catch(e) {}
+    return false;
+}
+
+function loadData() {
+    // loadFromCloud is async, handled in init
+    return loadFromLocal();
+}
+
+function resetData() {
+    if (confirm('确定恢复默认数据吗？所有人的编辑都将被清除！')) {
+        localStorage.removeItem(STORAGE_KEY);
+        // Also reset cloud
+        fetch(CLOUD_URL, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ version: 'v9', initialized: false })
+        }).then(function() { location.reload(); });
+    }
+}
+
+function refreshFromCloud() {
+    showSyncStatus('🔄 刷新中...');
+    loadFromCloud().then(function(loaded) {
+        if (loaded) {
+            renderTimeline();
+            renderFood('all');
+            showSyncStatus('✅ 已获取最新数据');
+        } else {
+            showSyncStatus('📋 使用默认数据');
+        }
+    });
+}
+
+// ============= INIT =============
+document.addEventListener('DOMContentLoaded', function() {
+    // First render with default/local data
+    loadFromLocal();
+    renderTimeline();
+    renderFoodFilters();
+    renderFood('all');
+    initMap();
+    document.getElementById('timelineSection').style.display = 'block';
+
+    // Then try to load from cloud and re-render
+    loadFromCloud().then(function(loaded) {
+        if (loaded) {
+            renderTimeline();
+            renderFood('all');
+            showSyncStatus('☁️ 已从云端同步');
+        } else {
+            // First visit: push default data to cloud
+            saveToCloud();
+        }
+    });
+});
+</script>
+</body>
+</html>
