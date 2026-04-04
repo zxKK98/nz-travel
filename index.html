@@ -188,8 +188,8 @@
 
 <!-- Flight info -->
 <div class="section-card">
-    <h2>✈️ 航班信息</h2>
-    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;">
+    <h2 onclick="toggleCollapse('flightContent',this)" style="cursor:pointer;user-select:none;">✈️ 航班信息 <span style="float:right;font-size:14px;color:#999;transition:transform .3s;" class="collapse-arrow">▶</span></h2>
+    <div id="flightContent" style="display:none;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;" data-display="grid">
         <div style="background:#f8f9fa;border-radius:12px;padding:14px;font-size:13px;">
             <div style="font-size:15px;font-weight:700;color:#1565c0;margin-bottom:8px;">🛫 去程：香港 → 墨尔本 → 基督城</div>
             <div><strong>4月29日</strong> 22:45 香港出发</div>
@@ -207,8 +207,8 @@
 
 <!-- Drive summary -->
 <div class="section-card" style="background:linear-gradient(135deg,#e8f5e9,#c8e6c9);border:2px solid #4caf50;">
-    <h2 style="color:#2e7d32;border-color:#2e7d32;">🚗 每日自驾时间</h2>
-    <div class="drive-summary">
+    <h2 onclick="toggleCollapse('driveContent',this)" style="color:#2e7d32;border-color:#2e7d32;cursor:pointer;user-select:none;">🚗 每日自驾时间 <span style="float:right;font-size:14px;color:#999;transition:transform .3s;" class="collapse-arrow">▶</span></h2>
+    <div id="driveContent" class="drive-summary" style="display:none;" data-display="flex">
         <div class="drive-day"><div class="d">Day 1</div><div class="h">3h</div><div class="km">230km</div></div>
         <div class="drive-day"><div class="d">Day 2</div><div class="h">45min</div><div class="km">105km</div></div>
         <div class="drive-day"><div class="d">Day 3</div><div class="h">3h</div><div class="km">220km</div></div>
@@ -606,6 +606,18 @@ function toggleSection(name) {
             el.style.display = 'none';
             btn.style.background = ''; btn.style.color = '';
         }
+    }
+}
+
+function toggleCollapse(id, h2El) {
+    var el = document.getElementById(id);
+    var arrow = h2El.querySelector('.collapse-arrow');
+    if (el.style.display === 'none') {
+        el.style.display = el.getAttribute('data-display') || 'block';
+        if (arrow) { arrow.style.transform = 'rotate(90deg)'; arrow.textContent = '▼'; }
+    } else {
+        el.style.display = 'none';
+        if (arrow) { arrow.style.transform = 'rotate(0deg)'; arrow.textContent = '▶'; }
     }
 }
 
