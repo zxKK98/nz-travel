@@ -781,7 +781,6 @@ function saveEdit() {
         if (name) {
             day.accommodation.push({name: name, url: link || ''});
         }
-        }
         renderTimeline(); toggleDay(ctx.dayId);
     } else if (ctx.type === 'addFood') {
         var cityLabels = { tekapo: '特卡波/库克山', wanaka: '瓦纳卡', queenstown: '皇后镇', dunedin: '达尼丁', christchurch: '基督城' };
