@@ -150,6 +150,49 @@
         .modal-btn.danger { background: #e53935; color: white; }
         .modal-btn.secondary { background: #f5f7fa; color: #666; }
         .footer { text-align: center; padding: 30px; color: #90a4ae; font-size: 12px; }
+        /* Prep & Tips sections */
+        .prep-section { background: linear-gradient(135deg, #e8eaf6, #c5cae9); border: 2px solid #7986cb; border-radius: 16px; padding: 24px; margin-bottom: 24px; display: none; }
+        .prep-section h2 { font-size: 18px; color: #283593; margin-bottom: 6px; display: flex; align-items: center; gap: 8px; border: none; padding-left: 0; }
+        .prep-section .prep-subtitle { font-size: 13px; color: #5c6bc0; margin-bottom: 18px; }
+        .prep-tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 18px; }
+        .prep-tab { padding: 7px 16px; border: 2px solid #7986cb; border-radius: 20px; background: white; color: #3949ab; font-size: 13px; cursor: pointer; transition: all 0.2s; font-weight: 500; }
+        .prep-tab:hover, .prep-tab.active { background: #3f51b5; color: white; border-color: #3f51b5; }
+        .prep-category { display: none; }
+        .prep-category.active { display: block; }
+        .checklist { list-style: none; padding: 0; }
+        .checklist li { display: flex; align-items: flex-start; gap: 10px; padding: 10px 14px; background: rgba(255,255,255,0.85); border-radius: 10px; margin-bottom: 6px; font-size: 13px; transition: all 0.2s; cursor: pointer; }
+        .checklist li:hover { background: rgba(255,255,255,1); transform: translateX(4px); }
+        .checklist li.checked { opacity: 0.5; text-decoration: line-through; }
+        .checklist li .ck-box { flex-shrink: 0; width: 20px; height: 20px; border: 2px solid #7986cb; border-radius: 5px; display: flex; align-items: center; justify-content: center; transition: all 0.2s; margin-top: 1px; }
+        .checklist li.checked .ck-box { background: #3f51b5; border-color: #3f51b5; }
+        .checklist li.checked .ck-box::after { content: '✓'; color: white; font-size: 12px; font-weight: 700; }
+        .checklist li .ck-text { flex: 1; line-height: 1.5; }
+        .checklist li .ck-text .ck-label { font-weight: 600; color: #333; }
+        .checklist li .ck-text .ck-detail { color: #666; font-size: 12px; }
+        .prep-progress { background: rgba(255,255,255,0.6); border-radius: 10px; padding: 12px 16px; margin-bottom: 18px; display: flex; align-items: center; gap: 12px; }
+        .prep-progress-bar { flex: 1; height: 8px; background: rgba(0,0,0,0.1); border-radius: 4px; overflow: hidden; }
+        .prep-progress-fill { height: 100%; background: linear-gradient(90deg, #3f51b5, #5c6bc0); border-radius: 4px; transition: width 0.4s ease; }
+        .prep-progress-text { font-size: 13px; font-weight: 600; color: #283593; white-space: nowrap; }
+        .prep-actions { display: flex; gap: 8px; margin-top: 16px; }
+        .prep-action-btn { padding: 8px 18px; border: none; border-radius: 20px; cursor: pointer; font-size: 12px; font-weight: 500; transition: all 0.2s; }
+        .prep-action-btn.reset { background: rgba(255,255,255,0.7); color: #5c6bc0; }
+        .prep-action-btn.reset:hover { background: white; }
+        /* Tips section */
+        .tips-section { background: linear-gradient(135deg, #fce4ec, #f8bbd0); border: 2px solid #f06292; border-radius: 16px; padding: 24px; margin-bottom: 24px; display: none; }
+        .tips-section h2 { font-size: 18px; color: #c2185b; margin-bottom: 6px; display: flex; align-items: center; gap: 8px; border: none; padding-left: 0; }
+        .tips-section .tips-subtitle { font-size: 13px; color: #e91e63; margin-bottom: 18px; }
+        .tip-cards { display: grid; grid-template-columns: 1fr; gap: 10px; }
+        .tip-card { background: rgba(255,255,255,0.9); border-radius: 12px; padding: 14px 16px; transition: all 0.2s; border-left: 4px solid #f06292; }
+        .tip-card:hover { transform: translateX(4px); box-shadow: 0 4px 12px rgba(233,30,99,0.1); }
+        .tip-card.warning { border-left-color: #ff9800; background: rgba(255,255,255,0.95); }
+        .tip-card.danger { border-left-color: #f44336; background: rgba(255,235,238,0.8); }
+        .tip-card.success { border-left-color: #4caf50; }
+        .tip-card .tip-icon { font-size: 18px; margin-bottom: 4px; }
+        .tip-card h4 { font-size: 14px; color: #333; margin-bottom: 4px; }
+        .tip-card p { font-size: 12px; color: #555; line-height: 1.6; }
+        .tip-card .tip-highlight { background: #fff9c4; padding: 1px 6px; border-radius: 4px; font-weight: 600; color: #e65100; }
+        .tips-category-title { font-size: 15px; font-weight: 700; color: #c2185b; margin: 18px 0 10px; padding-left: 8px; border-left: 3px solid #f06292; }
+        .tips-category-title:first-child { margin-top: 0; }
         @media (max-width: 600px) {
             .container { padding: 12px; }
             .header h1 { font-size: 20px; }
@@ -167,6 +210,8 @@
 <div class="toolbar">
     <button class="toolbar-btn primary" onclick="toggleSection('timeline')"><span>📅</span> 时间轴视图</button>
     <button class="toolbar-btn secondary" id="foodBtn" onclick="toggleSection('food')"><span>🍜</span> 美食推荐</button>
+    <button class="toolbar-btn secondary" id="prepBtn" onclick="toggleSection('prep')"><span>✅</span> 行前准备</button>
+    <button class="toolbar-btn secondary" id="tipsBtn" onclick="toggleSection('tips')"><span>⚠️</span> 注意事项</button>
     <button class="toolbar-btn secondary" onclick="window.print()"><span>📄</span> 导出PDF</button>
     <button class="toolbar-btn secondary" onclick="resetData()"><span>🔄</span> 恢复默认</button>
     <button class="toolbar-btn secondary" onclick="refreshFromCloud()" style="background:#e3f2fd;color:#1565c0;"><span>☁️</span> 同步</button>
@@ -251,6 +296,28 @@
     <h2>🍜 美食推荐（小红书高赞汇总）<button class="add-item-btn" style="width:auto;display:inline-flex;margin:0 0 0 12px;padding:4px 14px;font-size:11px;" onclick="openAddFood()">＋ 新增餐厅</button></h2>
     <div class="food-filters" id="foodFilters"></div>
     <div class="food-list" id="foodList"></div>
+</div>
+
+<!-- Prep Checklist Section -->
+<div class="prep-section" id="prepSection">
+    <h2>✅ 行前准备清单</h2>
+    <div class="prep-subtitle">出发前逐项勾选，确保万无一失 · 勾选状态自动保存</div>
+    <div class="prep-progress">
+        <div class="prep-progress-bar"><div class="prep-progress-fill" id="prepProgressFill" style="width:0%"></div></div>
+        <div class="prep-progress-text" id="prepProgressText">0 / 0 已完成</div>
+    </div>
+    <div class="prep-tabs" id="prepTabs"></div>
+    <div id="prepContent"></div>
+    <div class="prep-actions">
+        <button class="prep-action-btn reset" onclick="resetChecklist()">🔄 重置清单</button>
+    </div>
+</div>
+
+<!-- Tips Section -->
+<div class="tips-section" id="tipsSection">
+    <h2>⚠️ 注意事项 & 实用建议</h2>
+    <div class="tips-subtitle">来自小红书、知乎等真实旅行者经验总结，避坑必读</div>
+    <div id="tipsContent"></div>
 </div>
 
 <!-- Summary cards -->
@@ -606,6 +673,30 @@ function toggleSection(name) {
             el.style.display = 'none';
             btn.style.background = ''; btn.style.color = '';
         }
+    } else if (name === 'prep') {
+        var el = document.getElementById('prepSection');
+        var btn = document.getElementById('prepBtn');
+        if (el.style.display === 'none' || el.style.display === '') {
+            el.style.display = 'block';
+            btn.style.background = '#3f51b5'; btn.style.color = 'white';
+            renderPrepChecklist();
+            el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        } else {
+            el.style.display = 'none';
+            btn.style.background = ''; btn.style.color = '';
+        }
+    } else if (name === 'tips') {
+        var el = document.getElementById('tipsSection');
+        var btn = document.getElementById('tipsBtn');
+        if (el.style.display === 'none' || el.style.display === '') {
+            el.style.display = 'block';
+            btn.style.background = '#e91e63'; btn.style.color = 'white';
+            renderTips();
+            el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        } else {
+            el.style.display = 'none';
+            btn.style.background = ''; btn.style.color = '';
+        }
     }
 }
 
@@ -821,6 +912,196 @@ function changeHeaderBg(input) {
         };
         reader.readAsDataURL(input.files[0]);
     }
+}
+
+// ============= PREP CHECKLIST =============
+var PREP_KEY = 'nz-travel-prep-v1';
+var prepData = [
+    { cat: 'docs', catLabel: '📄 证件文件', items: [
+        { id: 'p1', label: '护照（有效期>6个月）', detail: '确保至少有2页空白签证页' },
+        { id: 'p2', label: '新西兰签证/NZeTA', detail: '建议提前1-2个月申请，打印一份纸质备份' },
+        { id: 'p3', label: '中国驾照原件', detail: '自驾必须随身携带' },
+        { id: 'p4', label: '驾照英文翻译件/NZTA认证翻译', detail: '可在租租车免费办理NZTA认证翻译件，比公证件更权威' },
+        { id: 'p5', label: '新西兰旅客声明 NZTD', detail: '出发前24小时在线填写，加快入境通关。网址：nztd.immigration.govt.nz' },
+        { id: 'p6', label: '行程单 & 酒店预订确认', detail: '打印纸质版，入境时海关可能抽查' },
+        { id: 'p7', label: '旅行保险（含自驾险）', detail: '强烈建议购买，新西兰医疗费用高昂，自驾事故也需覆盖' },
+        { id: 'p8', label: '机票行程单', detail: '电子版+纸质备份' },
+        { id: 'p9', label: '租车订单确认单', detail: '确认取车地点、时间、车型' },
+        { id: 'p10', label: '信用卡（Visa/Mastercard）', detail: '租车取车必须用信用卡，建议至少带2张不同银行的卡' }
+    ]},
+    { cat: 'elec', catLabel: '🔌 电子设备', items: [
+        { id: 'e1', label: '电源转换器（Type I 澳标三脚）', detail: '新西兰用澳洲同款插座，电压230V，国内双脚插头无法直接使用' },
+        { id: 'e2', label: '手机 + 充电器 + 充电宝', detail: '充电宝上飞机需随身带（不能托运），容量<27000mAh' },
+        { id: 'e3', label: '新西兰电话卡/eSIM', detail: '推荐 Spark 或 One NZ，淘宝可提前购买，落地即用。南岛偏远地区 Spark 信号最好' },
+        { id: 'e4', label: '车载手机支架', detail: '自驾导航必备，新西兰禁止手持手机开车，罚款$150纽币' },
+        { id: 'e5', label: '相机/GoPro + 存储卡', detail: '南岛风景绝美，建议多带存储卡' },
+        { id: 'e6', label: '离线地图（Google Maps 提前下载）', detail: '南岛很多山区无信号，务必提前下载离线地图' }
+    ]},
+    { cat: 'cloth', catLabel: '👕 衣物装备', items: [
+        { id: 'c1', label: '防风防水外套', detail: '5月新西兰入秋，南岛温差大，山区风大且可能下雨' },
+        { id: 'c2', label: '保暖层（抓绒/薄羽绒）', detail: '库克山、峡湾地区可能接近0℃' },
+        { id: 'c3', label: '速干T恤 3-4件', detail: '洋葱式穿搭，方便随温度增减' },
+        { id: 'c4', label: '长裤 2-3条', detail: '建议带一条防水徒步裤' },
+        { id: 'c5', label: '防水徒步鞋', detail: '库克山步道、峡湾游船甲板都需要，运动鞋也可以但不防滑' },
+        { id: 'c6', label: '帽子 + 手套 + 围巾', detail: '5月南岛早晚很冷，尤其特卡波和库克山区域' },
+        { id: 'c7', label: '墨镜 + 防晒霜 SPF50+', detail: '新西兰紫外线极强（臭氧层薄），阴天也需要防晒！' },
+        { id: 'c8', label: '泳衣', detail: '如果计划泡温泉（特卡波 Tekapo Springs）' }
+    ]},
+    { cat: 'daily', catLabel: '🧴 日用品', items: [
+        { id: 'd1', label: '牙刷牙膏 + 洗漱用品', detail: '新西兰酒店出于环保不提供一次性用品！' },
+        { id: 'd2', label: '毛巾', detail: '部分民宿/Motel可能不提供' },
+        { id: 'd3', label: '拖鞋', detail: '新西兰酒店一般不提供拖鞋' },
+        { id: 'd4', label: '常备药品', detail: '感冒药、肠胃药、创可贴、晕车药。中药粉末需处方，建议带成品药' },
+        { id: 'd5', label: '保温杯', detail: '自驾路上随时喝热水，新西兰自来水可直饮' },
+        { id: 'd6', label: '零食干粮', detail: '南岛部分路段前不着村后不着店，备些饼干巧克力防饿' }
+    ]},
+    { cat: 'money', catLabel: '💰 财务准备', items: [
+        { id: 'm1', label: '换纽币现金（小额）', detail: '大部分地方刷卡，但停车缴费机、小镇咖啡馆可能只收现金。超1万纽币需入境申报' },
+        { id: 'm2', label: 'Visa/Mastercard 信用卡', detail: '新西兰最通用，银联接受度有限。自助加油站只认芯片卡' },
+        { id: 'm3', label: '提前开通信用卡境外交易', detail: '打银行电话确认已开通境外无卡交易和NZD币种' },
+        { id: 'm4', label: '记录紧急联系电话', detail: '大使馆：04-4721382，紧急：111，非紧急：105' }
+    ]},
+    { cat: 'car', catLabel: '🚗 自驾相关', items: [
+        { id: 'r1', label: '确认租车订单（车型、保险、取还车时间）', detail: '建议选全险（Full Cover），免责额降到$0' },
+        { id: 'r2', label: '了解新西兰交规（靠左行驶！）', detail: '右舵左行，雨刷和转向灯位置与国内相反，出发前YouTube看几遍' },
+        { id: 'r3', label: '环岛让行规则', detail: '已在环岛内的车优先，进入环岛前必须让右方来车' },
+        { id: 'r4', label: '了解加油方式', detail: '大多自助加油：加完油进店报油枪号付款。偏远地区可能只能刷信用卡' },
+        { id: 'r5', label: '下载 CamperMate App', detail: '找免费停车场、公共厕所、加油站、露营地超方便' },
+        { id: 'r6', label: '儿童安全座椅（如需要）', detail: '7岁以下必须使用，租车时一并预订' }
+    ]}
+];
+
+function getCheckedItems() {
+    try { return JSON.parse(localStorage.getItem(PREP_KEY)) || {}; } catch(e) { return {}; }
+}
+
+function saveCheckedItems(checked) {
+    try { localStorage.setItem(PREP_KEY, JSON.stringify(checked)); } catch(e) {}
+}
+
+function toggleCheckItem(id) {
+    var checked = getCheckedItems();
+    checked[id] = !checked[id];
+    saveCheckedItems(checked);
+    var li = document.querySelector('[data-ck-id="' + id + '"]');
+    if (li) li.classList.toggle('checked', checked[id]);
+    updatePrepProgress();
+}
+
+function updatePrepProgress() {
+    var checked = getCheckedItems();
+    var total = 0, done = 0;
+    prepData.forEach(function(cat) {
+        cat.items.forEach(function(item) {
+            total++;
+            if (checked[item.id]) done++;
+        });
+    });
+    var pct = total ? Math.round(done / total * 100) : 0;
+    var fill = document.getElementById('prepProgressFill');
+    var text = document.getElementById('prepProgressText');
+    if (fill) fill.style.width = pct + '%';
+    if (text) text.textContent = done + ' / ' + total + ' 已完成 (' + pct + '%)';
+}
+
+var currentPrepTab = 'docs';
+
+function switchPrepTab(cat, btn) {
+    currentPrepTab = cat;
+    document.querySelectorAll('.prep-tab').forEach(function(el) { el.classList.remove('active'); });
+    if (btn) btn.classList.add('active');
+    document.querySelectorAll('.prep-category').forEach(function(el) { el.classList.remove('active'); });
+    var target = document.getElementById('prepCat_' + cat);
+    if (target) target.classList.add('active');
+}
+
+function renderPrepChecklist() {
+    var checked = getCheckedItems();
+    // Tabs
+    var tabsHtml = '';
+    prepData.forEach(function(cat, idx) {
+        tabsHtml += '<button class="prep-tab' + (idx === 0 ? ' active' : '') + '" onclick="switchPrepTab(\'' + cat.cat + '\',this)">' + cat.catLabel + '</button>';
+    });
+    document.getElementById('prepTabs').innerHTML = tabsHtml;
+    // Content
+    var contentHtml = '';
+    prepData.forEach(function(cat, idx) {
+        contentHtml += '<div class="prep-category' + (idx === 0 ? ' active' : '') + '" id="prepCat_' + cat.cat + '">';
+        contentHtml += '<ul class="checklist">';
+        cat.items.forEach(function(item) {
+            var isChecked = checked[item.id];
+            contentHtml += '<li data-ck-id="' + item.id + '" class="' + (isChecked ? 'checked' : '') + '" onclick="toggleCheckItem(\'' + item.id + '\')">';
+            contentHtml += '<div class="ck-box"></div>';
+            contentHtml += '<div class="ck-text"><div class="ck-label">' + item.label + '</div><div class="ck-detail">' + item.detail + '</div></div>';
+            contentHtml += '</li>';
+        });
+        contentHtml += '</ul></div>';
+    });
+    document.getElementById('prepContent').innerHTML = contentHtml;
+    updatePrepProgress();
+}
+
+function resetChecklist() {
+    if (confirm('确定清除所有勾选状态吗？')) {
+        localStorage.removeItem(PREP_KEY);
+        renderPrepChecklist();
+    }
+}
+
+// ============= TIPS & ADVICE =============
+var tipsData = [
+    { category: '🚗 自驾安全（最重要！）', cards: [
+        { type: 'danger', icon: '🚨', title: '靠左行驶！靠左行驶！靠左行驶！', text: '新西兰右舵靠左行驶，和国内完全相反。<span class="tip-highlight">最容易出错的时刻：转弯、环岛、停车场出来</span>。建议副驾随时提醒"靠左、靠左"。中国驻新使馆多次发布自驾安全警示。' },
+        { type: 'danger', icon: '⚡', title: '严禁超速！罚款极高', text: '新西兰超速罚金高达<span class="tip-highlight">$630纽币（约¥2700）</span>。郊区限速100km/h，城镇50km/h。路上有大量隐蔽测速摄像头和巡逻警车。' },
+        { type: 'warning', icon: '🔄', title: '环岛让行规则', text: '进环岛前必须让右方来车和已在环岛内的车。新西兰环岛非常多，搞错优先权容易出事故。口诀：<span class="tip-highlight">"让右不让左"</span>。' },
+        { type: 'warning', icon: '🌉', title: '单车道桥（One Lane Bridge）', text: '南岛山区很多单车道桥，看清指示牌上的箭头：<span class="tip-highlight">大箭头方向优先通行，小箭头方向必须让行</span>。不确定就等对面车先过。' },
+        { type: '', icon: '📱', title: '开车禁止使用手机', text: '手持手机开车罚$150纽币起。必须使用车载支架+免提导航。建议出发前设好导航再开车。' },
+        { type: '', icon: '⛽', title: '偏远地区提前加油', text: '南岛部分路段加油站间距超100km（如去峡湾的路上）。建议<span class="tip-highlight">油量低于半箱就加</span>。偏远地区油价比城镇贵20-30%，大城市加满是明智之举。' },
+        { type: 'success', icon: '🅿️', title: '停车注意车头方向', text: '路边停车时车头必须朝行车方向，否则可能被罚。P+数字标志（如P60）表示免费停车分钟数，超时会被贴罚单。' }
+    ]},
+    { category: '🛃 入境 & 海关', cards: [
+        { type: 'danger', icon: '🚫', title: '新西兰海关全球最严！如实申报', text: '未申报被查到直接罚<span class="tip-highlight">$400纽币起</span>，严重者拒绝入境。新西兰是农业国，对外来生物入侵零容忍。有疑问就申报，申报不等于没收。' },
+        { type: 'danger', icon: '🥩', title: '绝对禁止携带的物品', text: '肉类（包括真空包装卤味牛肉干）、鲜奶制品、蛋类、鲜果蔬菜、蜂蜜、种子、活体动植物。<span class="tip-highlight">飞机上没吃完的水果也不能带下飞机！</span>' },
+        { type: 'warning', icon: '💊', title: '中药和药品需谨慎', text: '粉末状中药需医生处方英文说明，含动物成分的中药（如麝香、牛黄）可能被禁。西药建议带原包装+英文说明书，量不超过3个月用量。' },
+        { type: '', icon: '🧹', title: '登山鞋/户外装备要清洁', text: '入境时鞋底如有泥土可能被要求清洗。建议出发前把徒步鞋刷干净，避免在海关耽误时间。' },
+        { type: 'success', icon: '📝', title: 'NZTD 提前在线填写', text: '新西兰旅客声明（NZTD）是入境必填的，建议出发前24小时在线完成，可大幅加快通关速度。网址：nztd.immigration.govt.nz' }
+    ]},
+    { category: '🌤️ 天气 & 穿搭', cards: [
+        { type: 'warning', icon: '🌡️', title: '5月是新西兰秋天，南岛温差极大', text: '基督城白天约8-14℃，库克山/峡湾可能低至<span class="tip-highlight">0-5℃</span>。一天内可能经历四季，洋葱式穿搭是王道。' },
+        { type: 'danger', icon: '☀️', title: '紫外线极强，阴天也要防晒！', text: '新西兰臭氧层薄，紫外线指数是同纬度北半球的<span class="tip-highlight">2倍</span>。就算多云天气也能晒伤，SPF50+防晒霜必备，墨镜全程戴。' },
+        { type: '', icon: '🧥', title: '防风防水外套是最重要的单品', text: '南岛天气多变，尤其峡湾和西海岸随时可能下雨。一件好的防风防水外套比带三件毛衣有用。' }
+    ]},
+    { category: '💡 实用生活贴士', cards: [
+        { type: '', icon: '🚰', title: '自来水可以直饮', text: '新西兰自来水水质极好，酒店、公共场所的水龙头水都可以直接喝，不用买矿泉水，带个保温杯灌满就走。' },
+        { type: '', icon: '🔌', title: '电源插座是澳标三脚扁头', text: '新西兰用 Type I 插座（和澳大利亚一样），电压230V。国内的两脚扁头插头无法使用，务必带转换器。' },
+        { type: '', icon: '💳', title: '支付方式：刷卡为主', text: 'Visa/Mastercard 全境通用。银联卡仅部分免税店可用。支付宝/微信覆盖有限。<span class="tip-highlight">自助加油站只认带芯片的信用卡</span>。' },
+        { type: 'warning', icon: '🕐', title: '5月时差：新西兰比北京快5小时', text: '5月新西兰非夏令时，时差为+5小时。即北京早上8点 = 新西兰下午1点。下午4:30左右天黑，注意安排行程。' },
+        { type: 'success', icon: '📍', title: 'i-SITE 游客中心超实用', text: '新西兰各主要旅游城镇都有官方 i-SITE 游客中心，可以获取免费地图、预订活动、查询路况天气，遇到问题第一时间去找他们。' },
+        { type: '', icon: '🛒', title: '超市推荐：Countdown & New World', text: '新西兰两大超市连锁。自驾游可以在超市买食材在Motel自己做饭，能省不少餐费。皇后镇还有 Pak\'nSave（最便宜）。' },
+        { type: '', icon: '🐑', title: '路上遇到羊群/牛群', text: '南岛乡间道路经常有牧民赶羊过马路，遇到了<span class="tip-highlight">必须停车等待</span>，不要按喇叭（会惊吓动物），等它们自然通过。这也是新西兰独特体验！' }
+    ]},
+    { category: '📞 紧急联系', cards: [
+        { type: 'danger', icon: '📞', title: '紧急求助：拨打 111', text: '警察、消防、救护车统一号码 111。非紧急警务事项拨打 105。' },
+        { type: '', icon: '🏛️', title: '中国驻新西兰大使馆', text: '电话：04-4721382<br>领保热线：021-528663<br>外交部全球领保：+86-10-12308' },
+        { type: '', icon: '🚗', title: '道路救援', text: '如果租车遇到故障/事故，第一时间联系租车公司24小时热线（提车时确认号码）。有人受伤必须24小时内报警。' }
+    ]}
+];
+
+function renderTips() {
+    var html = '';
+    tipsData.forEach(function(cat) {
+        html += '<div class="tips-category-title">' + cat.category + '</div>';
+        html += '<div class="tip-cards">';
+        cat.cards.forEach(function(card) {
+            html += '<div class="tip-card ' + card.type + '">';
+            html += '<div class="tip-icon">' + card.icon + '</div>';
+            html += '<h4>' + card.title + '</h4>';
+            html += '<p>' + card.text + '</p>';
+            html += '</div>';
+        });
+        html += '</div>';
+    });
+    document.getElementById('tipsContent').innerHTML = html;
 }
 
 // ============= MAP =============
