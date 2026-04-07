@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>新西兰南岛7天环线自驾路书 v9</title>
+    <title>新西兰南岛7天环线自驾路书 v9.4</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -49,6 +49,43 @@
         .tl-detail { display: none; margin-left: 30px; margin-bottom: 16px; }
         .tl-detail.show { display: block; }
         .day-content { background: white; border-radius: 14px; overflow: hidden; border: 1px solid #e3f2fd; box-shadow: 0 2px 8px rgba(21,101,192,0.08); }
+        .day-carousel { position: relative; padding: 16px 20px 8px; overflow: hidden; }
+        .carousel-track { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; scrollbar-width: none; gap: 12px; padding-bottom: 8px; }
+        .carousel-track::-webkit-scrollbar { display: none; }
+        .carousel-slide { flex: 0 0 auto; scroll-snap-align: center; width: 60%; max-width: 360px; position: relative; border-radius: 14px; overflow: hidden; box-shadow: 0 4px 16px rgba(0,0,0,0.12); transition: transform 0.3s ease; background: linear-gradient(180deg, #eef7ff 0%, #f8fbff 100%); }
+        .carousel-slide:hover { transform: scale(1.02); }
+        .carousel-slide img { width: 100%; height: 240px; object-fit: contain; object-position: center; image-orientation: from-image; display: block; background: linear-gradient(180deg, #eef7ff 0%, #f8fbff 100%); }
+        .carousel-slide .slide-label { position: absolute; bottom: 0; left: 0; right: 0; padding: 20px 12px 8px; background: linear-gradient(transparent, rgba(0,0,0,0.65)); color: #fff; font-size: 12px; font-weight: 500; letter-spacing: 0.5px; }
+        .carousel-dots { display: flex; justify-content: center; gap: 6px; margin-top: 10px; }
+        .carousel-dot { width: 6px; height: 6px; border-radius: 50%; background: #ccc; transition: all 0.3s ease; cursor: pointer; border: none; padding: 0; }
+        .carousel-dot.active { background: #1565c0; width: 18px; border-radius: 3px; }
+        .carousel-nav { position: absolute; top: 50%; transform: translateY(-50%); width: 32px; height: 32px; border-radius: 50%; background: rgba(255,255,255,0.9); border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 14px; color: #333; box-shadow: 0 2px 8px rgba(0,0,0,0.15); z-index: 2; transition: all 0.2s; backdrop-filter: blur(4px); }
+        .carousel-nav:hover { background: #fff; box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
+        .carousel-nav.prev { left: 24px; }
+        .carousel-nav.next { right: 24px; }
+        .carousel-edit-btn { position: absolute; top: 12px; right: 12px; z-index: 3; width: 34px; height: 34px; border: none; border-radius: 50%; padding: 0; display: flex; align-items: center; justify-content: center; color: white; background: rgba(15,23,42,0.22); box-shadow: 0 10px 24px rgba(15,23,42,0.14); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); cursor: pointer; opacity: 0; transform: translateY(-8px) scale(0.92); pointer-events: none; transition: opacity 0.18s ease, transform 0.18s ease, background 0.18s ease, box-shadow 0.18s ease; }
+        .carousel-slide:hover .carousel-edit-btn, .carousel-slide:focus-within .carousel-edit-btn { opacity: 1; transform: translateY(0) scale(1); pointer-events: auto; }
+        .carousel-edit-btn:hover, .carousel-edit-btn:focus-visible { background: rgba(13,71,161,0.92); box-shadow: 0 14px 28px rgba(13,71,161,0.24); outline: none; }
+        .carousel-edit-btn.custom { background: rgba(21,101,192,0.38); }
+        .carousel-edit-btn.custom:hover, .carousel-edit-btn.custom:focus-visible { background: rgba(21,101,192,0.92); }
+        .carousel-edit-icon { font-size: 14px; line-height: 1; transform: translateY(-0.5px); }
+        .replace-tip { background: #eef7ff; color: #1565c0; border-radius: 10px; padding: 10px 12px; font-size: 12px; line-height: 1.6; margin-bottom: 14px; }
+        .replace-preview-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin-bottom: 14px; }
+        .replace-preview-card { background: #f8fbff; border: 1px solid #dbeafe; border-radius: 12px; padding: 10px; }
+        .replace-preview-card h5 { font-size: 12px; color: #546e7a; margin-bottom: 8px; }
+        .replace-preview-card img { width: 100%; height: 180px; object-fit: contain; border-radius: 10px; background: linear-gradient(180deg, #eef7ff 0%, #f8fbff 100%); display: block; }
+        .replace-preview-empty { height: 180px; border-radius: 10px; border: 2px dashed #cfd8dc; display: flex; align-items: center; justify-content: center; text-align: center; padding: 16px; font-size: 12px; color: #90a4ae; background: #fafcff; }
+        .replace-preview-meta { margin-top: 8px; font-size: 11px; color: #78909c; line-height: 1.6; }
+        .replace-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
+        .replace-action-btn { border: none; border-radius: 999px; padding: 8px 14px; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+        .replace-action-btn.primary { background: #1565c0; color: white; }
+        .replace-action-btn.secondary { background: #eef3f8; color: #455a64; }
+        .replace-action-btn.warn { background: #fff3e0; color: #ef6c00; }
+        .replace-action-btn:hover { transform: translateY(-1px); }
+        .paste-zone { border: 2px dashed #bbdefb; border-radius: 12px; padding: 18px 16px; text-align: center; background: #f8fbff; color: #546e7a; font-size: 12px; line-height: 1.7; outline: none; transition: all 0.2s; }
+        .paste-zone:focus, .paste-zone.dragover { border-color: #1565c0; background: #eef7ff; box-shadow: 0 0 0 3px rgba(21,101,192,0.12); }
+        .paste-zone strong { color: #1565c0; }
+        .paste-zone small { display: block; color: #90a4ae; }
         .day-img { text-align: center; padding: 16px 20px 0; }
         .day-img img { width: 50%; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
         .day-img p { color: #666; font-size: 12px; margin-top: 8px; }
@@ -149,6 +186,7 @@
         .modal-btn.primary { background: #1565c0; color: white; }
         .modal-btn.danger { background: #e53935; color: white; }
         .modal-btn.secondary { background: #f5f7fa; color: #666; }
+        .modal-btn:disabled { opacity: 0.45; cursor: not-allowed; }
         .footer { text-align: center; padding: 30px; color: #90a4ae; font-size: 12px; }
         /* Prep & Tips sections */
         .prep-section { background: linear-gradient(135deg, #e8eaf6, #c5cae9); border: 2px solid #7986cb; border-radius: 16px; padding: 24px; margin-bottom: 24px; display: none; }
@@ -200,6 +238,9 @@
             .toolbar { padding: 8px; }
             .toolbar-btn { padding: 6px 12px; font-size: 12px; }
             .day-img img { width: 80% !important; }
+            .carousel-slide { width: 75%; max-width: none; }
+            .carousel-slide img { height: 220px; }
+            .carousel-nav { display: none; }
         }
     </style>
 </head>
@@ -356,8 +397,8 @@
 </div>
 
 <div class="footer">
-    <p>🗺️ 新西兰南岛7天环线自驾路书 | v9.0</p>
-    <p>全程自驾 · 不走回头路 · 支持编辑和导出</p>
+    <p>🗺️ 新西兰南岛7天环线自驾路书 | v9.4</p>
+    <p>全程自驾 · 不走回头路 · 支持编辑、换图和导出</p>
     <p>祝旅途愉快！🇳🇿</p>
 </div>
 
@@ -384,30 +425,29 @@
 // ============= DATA =============
 var daysData = [
     {
-        id: 0, title: 'Day 0（4月30日）墨尔本转机 11小时游玩', drive: '—', km: '—', stay: '当晚飞基督城',
-        image: 'https://i.imgur.com/qmSF7Xr.jpeg', imageAlt: '普芬比利蒸汽小火车', imageCaption: '墨尔本 · 普芬比利蒸汽小火车',
-        tags: ['07:20 抵达墨尔本', '蒸汽小火车', '看袋鼠', '18:40 飞基督城'],
+        id: 0, title: "Day 0（4月30日）墨尔本转机 11小时：看袋鼠 + 市区轻松版", drive: "—", km: "—", stay: "当晚飞基督城",
+        images: [{"spot": "Woodlands Historic Park 袋鼠", "url": "https://ci.xiaohongshu.com/note_pre_post_uhdr/1040g3r831sfshhpl5s705nbof1kg8vhll3cr6k8!nd_dft_wgth_webp_3"}, {"spot": "Woodlands Historic Park 袋鼠", "url": "https://ci.xiaohongshu.com/note_pre_post_uhdr/1040g3r831sfshhpl5s805nbof1kg8vhln3h6rto!nd_dft_wgth_webp_3"}, {"spot": "联邦广场 / 弗林德斯火车站", "url": "https://ci.xiaohongshu.com/notes_pre_post/1040g3k031rh7v4hs1e6g5qasr5r52ohtpclir5g!nd_dft_wlteh_webp_3"}, {"spot": "Degraves Street 咖啡巷", "url": "https://ci.xiaohongshu.com/1040g00830qipr8cb0cng48ss1lql0ai7raep2mg!nd_dft_wlteh_webp_3"}],
+        tags: ["07:20 抵达墨尔本", "Woodlands看袋鼠", "Hosier Lane", "18:40 飞基督城"],
         tagTypes: ['time','spot','spot','time'],
         spots: [
-            { time: '07:20', name: '抵达墨尔本机场', note: '出关+取行李约30-45min' },
-            { time: '08:15', name: '打车前往 Flinders Street Station', note: 'Uber约30min，AUD 50-60' },
-            { time: '09:00', name: '市区打卡：涂鸦巷 Hosier Lane', note: '步行可达' },
-            { time: '10:30-12:30', name: '🚂 A线：普芬比利蒸汽小火车', note: 'Belgrave↔Lakeside往返2h，成人$61' },
-            { time: '10:00-12:00', name: '🦘 B线：免费看野生袋鼠', note: '超高性价比替代方案' },
-            { time: '13:00', name: '市区午餐 + 咖啡', note: '墨尔本咖啡文化全球顶级' },
-            { time: '15:00', name: '返回机场', note: '提前3小时到机场' },
-            { time: '18:40', name: '起飞 → 基督城', note: '5月1日 00:10 抵达' }
+            { time: "07:20", name: "抵达墨尔本机场", note: "出关 + 行李寄存约45-60min" },
+            { time: "08:20", name: "Uber 前往 Woodlands Historic Park", note: "车程约10-15min，单程约AUD 30-40" },
+            { time: "08:40-10:30", name: "Woodlands Homestead 看袋鼠", note: "小红书验证路线：先到 Woodlands Trail Riding，再沿指示走到 Homestead 一带找袋鼠" },
+            { time: "11:00-13:30", name: "Flinders Street + Federation Square + Hosier Lane", note: "看完袋鼠后回市区，经典组合依然来得及" },
+            { time: "13:30-14:30", name: "Degraves Street / Hardware Lane brunch + 咖啡", note: "墨尔本转机收尾刚刚好" },
+            { time: "15:00", name: "返回机场", note: "给国际航班安检和值机预留充足时间" },
+            { time: "18:40", name: "起飞 → 基督城", note: "5月1日 00:10 抵达" }
         ],
         experiences: [
-            { icon: '🚂', title: '普芬比利蒸汽小火车（A线·强烈推荐）', desc: '百年蒸汽火车穿越丹德农山脉雨林。坐右侧！出发3分钟经过网红木桥大拐弯。需提前2周官网预订，旺季提前1个月。', price: 'AUD 61/人', link: 'https://puffingbilly.com.au/buy' },
-            { icon: '🦘', title: '免费看野生袋鼠（B线·高性价比）', desc: '免费看袋鼠+深度体验墨尔本咖啡文化。来源：小红书 @Sweetttttt「在墨尔本转机最值的一笔！免费看袋鼠」184赞', price: '免费', link: '' }
+            { icon: "🦘", title: "Woodlands Historic Park 免费看袋鼠", desc: "这条线我给你加回来了。小红书两篇转机笔记都指向 Woodlands Historic Park / Woodlands Homestead，一早去更容易碰到成群袋鼠。", price: "门票免费；Uber 往返约AUD 60-80", link: "" },
+            { icon: "☕", title: "市区轻松收尾", desc: "袋鼠放在前半段，后面再回市区逛 Flinders、联邦广场和 Hosier Lane，不折腾远郊小火车，但转机日的体验完整度更高。", price: "以步行 + Uber 为主", link: "" }
         ],
-        accommodation: [{name: '当晚飞往基督城，无需住宿', url: ''}],
+        accommodation: [{name: "当晚飞往基督城，无需住宿", url: ""}],
         navLink: ''
     },
     {
         id: 1, title: 'Day 1（5月1日）基督城 → 特卡波湖', drive: '3h', km: '230km', stay: '住特卡波',
-        image: 'https://i.imgur.com/z4mSUzL.jpeg', imageAlt: '特卡波湖', imageCaption: '特卡波湖 - 世界最佳观星地之一',
+        images: [{"spot": "特卡波湖", "url": "https://ci.xiaohongshu.com/1040g2sg3156kfe8hhcb049u89qqhk1bu96aq4u0!nd_dft_wgth_webp_3"}, {"spot": "特卡波湖", "url": "https://ci.xiaohongshu.com/1040g2sg317rfggsg3u8048bd2hur35e2o5djqig!nd_dft_wlteh_webp_3"}, {"spot": "好牧羊人教堂", "url": "https://ci.xiaohongshu.com/1040g2sg3156kfe8hhcag49u89qqhk1but78helg!nd_dft_wgth_webp_3"}, {"spot": "好牧羊人教堂", "url": "https://ci.xiaohongshu.com/1040g2sg3156kfe8hhcc049u89qqhk1buorasb78!nd_dft_wgth_webp_3"}, {"spot": "特卡波星空", "url": "https://ci.xiaohongshu.com/1040g00831oeufk6s583049l7v0es5rvtt7dpe60!nd_dft_wlteh_webp_3"}, {"spot": "特卡波星空", "url": "https://ci.xiaohongshu.com/1040g00831oeufk6s580g49l7v0es5rvt273bg5o!nd_dft_wlteh_webp_3"}],
         tags: ['00:10 抵达', '07:00 取车', '好牧羊人教堂', 'Astro咖啡馆', 'Tekapo Springs'],
         tagTypes: ['time','time','spot','spot','spot'],
         spots: [
@@ -428,7 +468,7 @@ var daysData = [
     },
     {
         id: 2, title: 'Day 2（5月2日）特卡波 → 库克山', drive: '45min', km: '105km', stay: '住库克山',
-        image: 'https://i.imgur.com/ZzPwNsg.jpeg', imageAlt: '库克山', imageCaption: '库克山 - 新西兰最高峰',
+        images: [{"spot": "普卡基湖", "url": "https://ci.xiaohongshu.com/1040g008310atu5pv6o6g49116hnho7t5ctqm6s0!nd_dft_wgth_webp_3"}, {"spot": "普卡基湖", "url": "https://ci.xiaohongshu.com/1040g2sg31e6omoko12705n73rdo1emvmnj2cc20!nd_dft_wlteh_webp_3"}, {"spot": "库克山", "url": "https://ci.xiaohongshu.com/1040g00830p8tkk9nk4404a3oocsfar4n9oueglo!nd_dft_wlteh_webp_3"}, {"spot": "库克山", "url": "https://ci.xiaohongshu.com/1040g00830p8tkk9nk44g4a3oocsfar4nofe14j8!nd_dft_wlteh_webp_3"}],
         tags: ['普卡基湖', '三文鱼农场', 'Hooker Valley', '直升机冰川'],
         tagTypes: ['spot','spot','spot','spot'],
         spots: [
@@ -446,16 +486,19 @@ var daysData = [
     },
     {
         id: 3, title: 'Day 3（5月3日）库克山 → 瓦纳卡 → 皇后镇', drive: '3h', km: '220km', stay: '住皇后镇',
-        image: 'https://i.imgur.com/ulDybA6.jpeg', imageAlt: '瓦纳卡湖', imageCaption: '瓦纳卡湖 - 孤独的树',
-        tags: ['Lindis Pass', '孤独的树', '瓦纳卡湖', 'Deer Park'],
+        images: [{"spot": "瓦纳卡孤独的树", "url": "https://ci.xiaohongshu.com/1040g00830veagc9j665049o7pc689c48nurh75o!nd_dft_wlteh_webp_3"}, {"spot": "瓦纳卡孤独的树", "url": "https://ci.xiaohongshu.com/1040g00830veagc9j660049o7pc689c480fv2rqo!nd_dft_wlteh_webp_3"}, {"spot": "瓦纳卡湖", "url": "https://ci.xiaohongshu.com/1040g2sg30sf0svq7360g43fv9v6du5e0vp0qmsg!nd_dft_wlteh_webp_3"}, {"spot": "瓦纳卡湖", "url": "https://ci.xiaohongshu.com/1040g2sg30sf0svq7361043fv9v6du5e0ban40s0!nd_dft_wlteh_webp_3"}, {"spot": "U-Fly Wanaka 开飞机", "url": "https://ci.xiaohongshu.com/1040g2sg30v5po3f05a0g49ntpavf6dn0j93k0og!nd_dft_wlteh_webp_3"}, {"spot": "U-Fly Wanaka 开飞机", "url": "https://ci.xiaohongshu.com/1040g2sg30v5po3f05a1049ntpavf6dn099vqbug!nd_dft_wlteh_webp_3"}, {"spot": "皇后镇全景", "url": "https://ci.xiaohongshu.com/notes_pre_post/1040g3k831tvsjj700o805p0dhr9ahdrun78t550!nd_dft_wgth_webp_3"}, {"spot": "皇后镇全景", "url": "https://ci.xiaohongshu.com/notes_pre_post/1040g3k831tvsjj700o8g5p0dhr9ahdrud85fne0!nd_dft_wgth_webp_3"}],
+        tags: ["Lindis Pass", "孤独的树", "U-Fly开飞机", "Deer Park"],
         tagTypes: ['spot','spot','spot','spot'],
         spots: [
-            { time: '上午', name: 'Lindis Pass 高山公路', note: '沿途风景壮丽' },
-            { time: '中午', name: '打卡瓦纳卡湖 "孤独的树"', note: '网红打卡点' },
-            { time: '可选', name: '⛳ Wanaka Golf Club', note: 'NZD 75' },
-            { time: '傍晚', name: 'Deer Park Heights', note: '看动物+俯瞰皇后镇' }
+            { time: "上午", name: "Lindis Pass 高山公路", note: "沿途风景壮丽" },
+            { time: "中午", name: "打卡瓦纳卡湖 \"孤独的树\"", note: "网红打卡点" },
+            { time: "可选", name: "🛩️ U-Fly Wanaka 开飞机体验", note: "20/30/60分钟，NZD 388-718；中文教员可加NZD 69" },
+            { time: "可选", name: "⛳ Wanaka Golf Club", note: "NZD 75" },
+            { time: "傍晚", name: "Deer Park Heights", note: "看动物+俯瞰皇后镇" }
         ],
-        experiences: [],
+        experiences: [
+            { icon: "🛩️", title: "U-Fly Wanaka 开飞机体验", desc: "我去小红书和官方页都核了：这项目其实是固定翼小飞机试飞，不是直升机。可以在教练陪同下自己拉杆、转弯，同行乘客可坐后排看景。", price: "NZD 388-718 / 20-60分钟", link: "https://u-flywanaka.co.nz/trial-flight/" }
+        ],
         accommodation: [
             {name: 'Novotel Queenstown Lakeside', url: 'https://www.booking.com/hotel/nz/gardens-queenstown.html'},
             {name: 'Queenstown Park Hotel', url: 'https://www.booking.com/hotel/nz/queenstown-park-boutique.html'}
@@ -463,7 +506,7 @@ var daysData = [
     },
     {
         id: 4, title: 'Day 4（5月4日）皇后镇深度游', drive: '1h', km: '80km', stay: '住皇后镇',
-        image: 'https://i.imgur.com/HIWlpey.jpeg', imageAlt: '皇后镇', imageCaption: '皇后镇 - 瓦卡蒂普湖',
+        images: [{"spot": "皇后镇天空缆车", "url": "https://ci.xiaohongshu.com/1040g00830vtib5sgm60049d1gv483g0u3uuskb0!nd_dft_wlteh_webp_3"}, {"spot": "皇后镇天空缆车", "url": "https://ci.xiaohongshu.com/1040g2sg3148ek21pl68048rrdor5m145g71iia8!nd_dft_wgth_webp_3"}, {"spot": "皇后镇Onsen温泉", "url": "https://ci.xiaohongshu.com/1040g0083119f4fpkmi105nq3ce8g8msv5e4b1l0!nd_dft_wlteh_webp_3"}, {"spot": "皇后镇Onsen温泉", "url": "https://ci.xiaohongshu.com/1040g2sg3170embiek67g5n7rn3jkb4ir2f4qig0!nd_dft_wlteh_webp_3"}, {"spot": "Fergburger", "url": "https://ci.xiaohongshu.com/1040g00831643lieh2o004a31e1u00cjcvhec12o!nd_dft_wlteh_webp_3"}, {"spot": "Fergburger", "url": "https://ci.xiaohongshu.com/1040g00831643lieh2o0g4a31e1u00cjc5b1ecj0!nd_dft_wlteh_webp_3"}],
         tags: ['天空缆车', '滑板车', '高尔夫', 'Onsen温泉'],
         tagTypes: ['spot','spot','spot','spot'],
         spots: [
@@ -482,15 +525,17 @@ var daysData = [
     },
     {
         id: 5, title: 'Day 5（5月5日）皇后镇悠闲日', drive: '0.5h', km: '—', stay: '住皇后镇',
-        image: '', imageAlt: '', imageCaption: '',
-        tags: ['箭镇', 'TSS蒸汽船', 'Walter Peak农场'],
-        tagTypes: ['spot','spot','spot'],
+        images: [{"spot": "箭镇", "url": "https://ci.xiaohongshu.com/spectrum/1040g0k03105enihm5o005ots9229gmgaf52i6hg!nd_dft_wlteh_webp_3"}, {"spot": "箭镇", "url": "https://ci.xiaohongshu.com/spectrum/1040g0k03105enlcom2005ots9229gmgaeei8cmo!nd_dft_wlteh_webp_3"}, {"spot": "TSS蒸汽船", "url": "https://ci.xiaohongshu.com/1040g2sg316tk8f2p0qdg5nuupi8g87rjevvb5i0!nd_dft_wgth_webp_3"}, {"spot": "TSS蒸汽船", "url": "https://ci.xiaohongshu.com/1040g2sg316tk8f2p0q9g5nuupi8g87rj5pm92i8!nd_dft_wgth_webp_3"}, {"spot": "瓦卡蒂普湖", "url": "https://ci.xiaohongshu.com/1040g2sg316tk8f2p0qc05nuupi8g87rj7en92tg!nd_dft_wgth_webp_3"}, {"spot": "瓦卡蒂普湖", "url": "https://ci.xiaohongshu.com/notes_pre_post/1040g3k031mh9sl0rmm005n7543ekc4q6bhqlu50!nd_dft_wgth_webp_3"}, {"spot": "Hanley Park 秋千", "url": "images/hanley-source-from-user.jpg"}],
+        tags: ['箭镇', 'TSS蒸汽船', 'Walter Peak农场', 'Hanley Park秋千'],
+        tagTypes: ['spot','spot','spot','spot'],
         spots: [
             { time: '上午', name: '箭镇 Arrowtown 半日游', note: '华人淘金遗迹' },
-            { time: '下午', name: '🚢 TSS 蒸汽船 + Walter Peak 农场 BBQ', note: 'NZD 139起' }
+            { time: '下午', name: '🚢 TSS 蒸汽船 + Walter Peak 农场 BBQ', note: 'NZD 139起' },
+            { time: '傍晚', name: 'Hanley Park Playground 秋千 / 滑索', note: '就是你发的这张图对应的位置，免费，离皇后镇中心约15分钟车程' }
         ],
         experiences: [
-            { icon: '🚢', title: 'TSS 蒸汽船 + Walter Peak 农场', desc: '百年蒸汽船穿越瓦卡蒂普湖', price: 'NZD 139-159', link: 'https://www.realjourneys.co.nz/' }
+            { icon: '🚢', title: 'TSS 蒸汽船 + Walter Peak 农场', desc: '百年蒸汽船穿越瓦卡蒂普湖', price: 'NZD 139-159', link: 'https://www.realjourneys.co.nz/' },
+            { icon: '🌄', title: 'Hanley Park Playground 雪山秋千', desc: '我把图里这个点也查出来了：就是 Hanley Park Playground。正对卓越山，日落前去最出片，秋千、滑索和草坪都很治愈。', price: '免费', link: '' }
         ],
         accommodation: [
             {name: 'Novotel Queenstown Lakeside', url: 'https://www.booking.com/hotel/nz/gardens-queenstown.html'},
@@ -499,7 +544,7 @@ var daysData = [
     },
     {
         id: 6, title: 'Day 6（5月6日）峡湾一日游', drive: '6h', km: '400km', stay: '住蒂阿瑙',
-        image: 'https://i.imgur.com/muiXazh.jpeg', imageAlt: '米尔福德峡湾', imageCaption: '米尔福德峡湾 - 世界第八大自然奇迹',
+        images: [{"spot": "镜湖", "url": "https://ci.xiaohongshu.com/1040g00830n2jec86lg004394a1fr7pamsvad700!nd_dft_wlteh_webp_3"}, {"spot": "镜湖", "url": "https://ci.xiaohongshu.com/1040g00830n2jec86lg404394a1fr7pamnh7hero!nd_dft_wlteh_webp_3"}, {"spot": "荷马隧道", "url": "https://ci.xiaohongshu.com/1000g0082clj4dqsh20005o47p8r08bp77is9m10!nd_dft_wgth_webp_3"}, {"spot": "米尔福德峡湾", "url": "https://ci.xiaohongshu.com/notes_pre_post/1040g3k031o8ueklmmg3g493mck223915859uib0!nd_dft_wlteh_webp_3"}, {"spot": "米尔福德峡湾", "url": "https://ci.xiaohongshu.com/note_pre_post_uhdr/1040g3r031pkhe4e2ks5043quujj33btm6du2kao!nd_dft_wgth_webp_3"}, {"spot": "米尔福德峡湾", "url": "https://ci.xiaohongshu.com/notes_pre_post/1040g3k831pkhe5oijuag43quujj33btmiiehboo!nd_dft_wlteh_webp_3"}],
         tags: ['06:00 出发', '蒂阿瑙', '镜湖', '米尔福德峡湾', '荷马隧道'],
         tagTypes: ['time','spot','spot','spot','spot'],
         spots: [
@@ -517,7 +562,7 @@ var daysData = [
     },
     {
         id: 7, title: 'Day 7（5月7日）东海岸线返程', drive: '7h', km: '550km', stay: '住基督城机场',
-        image: 'https://i.imgur.com/dLHNQAu.jpeg', imageAlt: '达尼丁', imageCaption: '达尼丁 - 拉纳克城堡',
+        images: [{"spot": "达尼丁火车站", "url": "https://ci.xiaohongshu.com/note_pre_post_uhdr/1040g3r831tlc990pn8ag5np2obj096t0iavprvo!nd_dft_wlteh_webp_3"}, {"spot": "达尼丁火车站", "url": "https://ci.xiaohongshu.com/note_pre_post_uhdr/1040g3r831tlc990pn8b05np2obj096t0m9h2m3g!nd_dft_wlteh_webp_3"}, {"spot": "达尼丁火车站", "url": "https://ci.xiaohongshu.com/notes_pre_post/1040g3k831tlc37re7q8g5np2obj096t088mlt78!nd_dft_wlteh_webp_3"}, {"spot": "摩拉基大圆石", "url": "https://ci.xiaohongshu.com/1040g00830tevsolb40005ocoiqdk1ctpn8crmpg!nd_dft_wlteh_webp_3"}, {"spot": "摩拉基大圆石", "url": "https://ci.xiaohongshu.com/1040g00830tevsolb400g5ocoiqdk1ctpa9ic5f0!nd_dft_wlteh_webp_3"}, {"spot": "摩拉基大圆石", "url": "https://ci.xiaohongshu.com/1040g00830tevsolb40105ocoiqdk1ctpuucuj90!nd_dft_wlteh_webp_3"}, {"spot": "达尼丁", "url": "https://ci.xiaohongshu.com/note_pre_post_uhdr/1040g3r831qpvgvelga2g4bon415j4b48n28ui00!nd_dft_wlteh_webp_3"}, {"spot": "达尼丁", "url": "https://ci.xiaohongshu.com/note_pre_post_uhdr/1040g3r831qpvgvelga304bon415j4b48t5ds7to!nd_dft_wlteh_webp_3"}, {"spot": "达尼丁", "url": "https://ci.xiaohongshu.com/note_pre_post_uhdr/1040g3r831qpvgvelga3g4bon415j4b489kgd62o!nd_dft_wgth_webp_3"}],
         tags: ['06:00 出发', '达尼丁火车站', '八角广场', '摩拉基大圆石'],
         tagTypes: ['time','spot','spot','spot'],
         spots: [
@@ -555,8 +600,113 @@ var foodData = [
 ];
 
 var currentEditContext = null;
+var CUSTOM_IMAGE_KEY = 'nz-travel-custom-images-v1';
+var customImageMap = {};
+var pendingImageDataUrl = '';
 
 // ============= RENDER =============
+
+// ====== IMAGE CAROUSEL ======
+function normalizeCarouselImages(images) {
+    var result = [];
+    var countBySpot = {};
+    var seen = {};
+    for (var i = 0; i < images.length; i++) {
+        var img = images[i] || {};
+        var key = (img.spot || '') + '|' + (img.url || '');
+        if (seen[key]) continue;
+        seen[key] = true;
+        countBySpot[img.spot] = countBySpot[img.spot] || 0;
+        if (countBySpot[img.spot] >= 2) continue;
+        countBySpot[img.spot]++;
+        var copy = {};
+        for (var k in img) copy[k] = img[k];
+        copy.originalIndex = i;
+        result.push(copy);
+    }
+    return result;
+}
+
+function getImageOverrideKey(dayId, image) {
+    if (!image) return '';
+    return [dayId, image.spot || '', image.url || ''].join('::');
+}
+
+function getDisplayImageUrl(dayId, image) {
+    var key = getImageOverrideKey(dayId, image);
+    if (key && customImageMap[key] && customImageMap[key].dataUrl) {
+        return customImageMap[key].dataUrl;
+    }
+    return image ? image.url : '';
+}
+
+function hasImageOverride(dayId, image) {
+    var key = getImageOverrideKey(dayId, image);
+    return !!(key && customImageMap[key] && customImageMap[key].dataUrl);
+}
+
+function renderCarousel(dayId, images) {
+    images = normalizeCarouselImages(images || []);
+    var h = '<div class="day-carousel" id="carousel' + dayId + '">';
+    h += '<div class="carousel-track" id="carouselTrack' + dayId + '">';
+    for (var i = 0; i < images.length; i++) {
+        var sourceIndex = typeof images[i].originalIndex === 'number' ? images[i].originalIndex : i;
+        var displayUrl = getDisplayImageUrl(dayId, images[i]);
+        var customTag = hasImageOverride(dayId, images[i]);
+        var editLabel = customTag ? '已替换，点这里重新换图' : '替换这张图';
+        h += '<div class="carousel-slide">' +
+            '<img src="' + displayUrl + '" alt="' + images[i].spot + '" loading="lazy" onerror="this.parentElement.style.display=\'none\'">' +
+            '<button class="carousel-edit-btn' + (customTag ? ' custom' : '') + '" type="button" title="' + editLabel + '" aria-label="' + editLabel + '" onclick="event.stopPropagation();openEditImage(' + dayId + ',' + sourceIndex + ')"><span class="carousel-edit-icon">&#9998;</span></button>' +
+            '<div class="slide-label">' + images[i].spot + '</div></div>';
+    }
+    h += '</div>';
+    if (images.length > 1) {
+        h += '<button class="carousel-nav prev" onclick="carouselScroll(' + dayId + ',-1)">&#8249;</button>';
+        h += '<button class="carousel-nav next" onclick="carouselScroll(' + dayId + ',1)">&#8250;</button>';
+        h += '<div class="carousel-dots" id="carouselDots' + dayId + '">';
+        for (var j = 0; j < images.length; j++) {
+            h += '<button class="carousel-dot' + (j === 0 ? ' active' : '') + '" onclick="carouselGoTo(' + dayId + ',' + j + ')"></button>';
+        }
+        h += '</div>';
+    }
+    h += '</div>';
+    return h;
+}
+
+function carouselScroll(dayId, dir) {
+    var track = document.getElementById('carouselTrack' + dayId);
+    if (!track) return;
+    var slide = track.querySelector('.carousel-slide');
+    if (!slide) return;
+    var slideW = slide.offsetWidth + 12; // gap
+    track.scrollBy({ left: dir * slideW, behavior: 'smooth' });
+}
+
+function carouselGoTo(dayId, idx) {
+    var track = document.getElementById('carouselTrack' + dayId);
+    if (!track) return;
+    var slide = track.querySelector('.carousel-slide');
+    if (!slide) return;
+    var slideW = slide.offsetWidth + 12;
+    track.scrollTo({ left: idx * slideW, behavior: 'smooth' });
+}
+
+function initCarousels() {
+    document.querySelectorAll('.carousel-track').forEach(function(track) {
+        var dayId = track.id.replace('carouselTrack', '');
+        track.addEventListener('scroll', function() {
+            var slide = track.querySelector('.carousel-slide');
+            if (!slide) return;
+            var slideW = slide.offsetWidth + 12;
+            var idx = Math.round(track.scrollLeft / slideW);
+            var dots = document.querySelectorAll('#carouselDots' + dayId + ' .carousel-dot');
+            dots.forEach(function(dot, i) {
+                dot.classList.toggle('active', i === idx);
+            });
+        });
+    });
+}
+
 function renderTimeline() {
     var c = document.getElementById('tlContainer');
     var html = '<div class="tl-line"></div>';
@@ -572,8 +722,8 @@ function renderTimeline() {
             '<div class="tl-tags">' + tagsHtml + '</div></div>';
         // Detail
         html += '<div class="tl-detail" id="tlDetail' + d.id + '"><div class="day-content">';
-        if (d.image) {
-            html += '<div class="day-img"><img src="' + d.image + '" alt="' + d.imageAlt + '"><p>' + d.imageCaption + '</p></div>';
+        if (d.images && d.images.length > 0) {
+            html += renderCarousel(d.id, d.images);
         }
         html += '<div class="day-body">';
         // Spots
@@ -735,6 +885,181 @@ function filterFood(city, btn) {
     renderFood(city);
 }
 
+// ============= EDIT IMAGES =============
+function openEditImage(dayId, idx) {
+    var day = daysData.find(function(d) { return d.id === dayId; });
+    if (!day || !day.images || !day.images[idx]) return;
+    var image = day.images[idx];
+    var currentUrl = getDisplayImageUrl(dayId, image);
+    var hasCustom = hasImageOverride(dayId, image);
+    currentEditContext = { type: 'image', dayId: dayId, idx: idx };
+    pendingImageDataUrl = '';
+    document.getElementById('editModalTitle').textContent = '替换图片';
+    document.getElementById('editSaveBtn').textContent = '保存换图';
+    document.getElementById('editSaveBtn').disabled = true;
+    document.getElementById('editModalBody').innerHTML =
+        '<div class="replace-tip">这张图换掉后会保存在当前浏览器，本地刷新不会丢。适合你直接把截图粘过来，手动纠图不用再跟我吵了。</div>' +
+        '<div class="replace-preview-grid">' +
+            '<div class="replace-preview-card"><h5>当前图片</h5><img src="' + currentUrl + '" alt="当前图片"><div class="replace-preview-meta">点位：' + image.spot + (hasCustom ? '<br>状态：已使用本地替换图' : '<br>状态：默认图') + '</div></div>' +
+            '<div class="replace-preview-card"><h5>准备替换成</h5><img id="imageDraftPreview" src="" alt="待替换图片" style="display:none;"><div class="replace-preview-empty" id="imageDraftEmpty">还没选新图<br>可以上传，也可以点下面区域后直接按 ⌘V / Ctrl+V</div><div class="replace-preview-meta" id="imageDraftMeta">建议优先贴你自己筛过的截图，省得错图再来回折腾。</div></div>' +
+        '</div>' +
+        '<div class="replace-actions">' +
+            '<button class="replace-action-btn primary" type="button" onclick="triggerImageFilePick()">上传图片</button>' +
+            '<button class="replace-action-btn secondary" type="button" onclick="readClipboardImage()">读取剪贴板</button>' +
+            '<button class="replace-action-btn warn" type="button" onclick="restoreDefaultImage()">恢复默认图</button>' +
+        '</div>' +
+        '<input type="file" id="imageFileUpload" accept="image/*" style="display:none" onchange="handleImageFileInput(this)">' +
+        '<div class="paste-zone" id="imagePasteZone" tabindex="0">把焦点点进这里后，直接 <strong>⌘V / Ctrl+V</strong> 粘贴图片<br><small>也支持把图片文件拖进来，或者点上面的“读取剪贴板”</small></div>';
+    document.getElementById('editModal').classList.add('active');
+    bindImagePasteZone();
+}
+
+function triggerImageFilePick() {
+    var input = document.getElementById('imageFileUpload');
+    if (input) input.click();
+}
+
+function bindImagePasteZone() {
+    var zone = document.getElementById('imagePasteZone');
+    if (!zone) return;
+    zone.focus();
+    zone.addEventListener('paste', handleImagePasteEvent);
+    zone.addEventListener('dragover', function(e) {
+        e.preventDefault();
+        zone.classList.add('dragover');
+    });
+    zone.addEventListener('dragleave', function() {
+        zone.classList.remove('dragover');
+    });
+    zone.addEventListener('drop', function(e) {
+        e.preventDefault();
+        zone.classList.remove('dragover');
+        var file = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
+        if (file) handleIncomingImageFile(file, '拖拽图片 ' + (file.name || ''));
+    });
+}
+
+function handleImagePasteEvent(e) {
+    var items = e.clipboardData && e.clipboardData.items;
+    if (!items) return;
+    for (var i = 0; i < items.length; i++) {
+        if (items[i].type && items[i].type.indexOf('image/') === 0) {
+            e.preventDefault();
+            handleIncomingImageFile(items[i].getAsFile(), '剪贴板图片');
+            return;
+        }
+    }
+    showSyncStatus('剪贴板里没检测到图片，先复制一张图再来。', true);
+}
+
+function handleImageFileInput(input) {
+    if (!input || !input.files || !input.files[0]) return;
+    handleIncomingImageFile(input.files[0], '本地上传 ' + (input.files[0].name || '图片'));
+    input.value = '';
+}
+
+function readClipboardImage() {
+    if (!navigator.clipboard || !navigator.clipboard.read) {
+        showSyncStatus('当前浏览器不支持直接读取剪贴板，点下面虚线框再按 ⌘V 就行。', true);
+        return;
+    }
+    navigator.clipboard.read().then(function(items) {
+        for (var i = 0; i < items.length; i++) {
+            for (var j = 0; j < items[i].types.length; j++) {
+                var type = items[i].types[j];
+                if (type.indexOf('image/') === 0) {
+                    items[i].getType(type).then(function(blob) {
+                        handleIncomingImageFile(blob, '系统剪贴板');
+                    });
+                    return;
+                }
+            }
+        }
+        showSyncStatus('剪贴板里没找到图片。', true);
+    }).catch(function() {
+        showSyncStatus('读取剪贴板失败，试试点虚线框后直接按 ⌘V。', true);
+    });
+}
+
+function handleIncomingImageFile(file, sourceLabel) {
+    if (!file || !file.type || file.type.indexOf('image/') !== 0) {
+        showSyncStatus('这不是图片文件，换一张。', true);
+        return;
+    }
+    readFileAsDataUrl(file).then(function(dataUrl) {
+        return compressImageDataUrl(dataUrl, 1600, 0.86);
+    }).then(function(dataUrl) {
+        pendingImageDataUrl = dataUrl;
+        var preview = document.getElementById('imageDraftPreview');
+        var empty = document.getElementById('imageDraftEmpty');
+        var meta = document.getElementById('imageDraftMeta');
+        var zone = document.getElementById('imagePasteZone');
+        var saveBtn = document.getElementById('editSaveBtn');
+        if (preview) {
+            preview.src = dataUrl;
+            preview.style.display = 'block';
+        }
+        if (empty) empty.style.display = 'none';
+        if (meta) meta.textContent = '已读取：' + sourceLabel + '。看着没问题就点“保存换图”。';
+        if (zone) zone.classList.add('dragover');
+        if (saveBtn) saveBtn.disabled = false;
+    }).catch(function() {
+        showSyncStatus('图片处理失败，换一张再试。', true);
+    });
+}
+
+function readFileAsDataUrl(file) {
+    return new Promise(function(resolve, reject) {
+        var reader = new FileReader();
+        reader.onload = function(e) { resolve(e.target.result); };
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+    });
+}
+
+function compressImageDataUrl(dataUrl, maxEdge, quality) {
+    return new Promise(function(resolve, reject) {
+        var img = new Image();
+        img.onload = function() {
+            var w = img.naturalWidth || img.width;
+            var h = img.naturalHeight || img.height;
+            if (!w || !h) {
+                reject(new Error('bad image'));
+                return;
+            }
+            var scale = Math.min(1, maxEdge / Math.max(w, h));
+            var canvas = document.createElement('canvas');
+            canvas.width = Math.round(w * scale);
+            canvas.height = Math.round(h * scale);
+            var ctx = canvas.getContext('2d');
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+            resolve(canvas.toDataURL('image/jpeg', quality || 0.86));
+        };
+        img.onerror = reject;
+        img.src = dataUrl;
+    });
+}
+
+function restoreDefaultImage() {
+    var ctx = currentEditContext;
+    if (!ctx || ctx.type !== 'image') return;
+    var day = daysData.find(function(d) { return d.id === ctx.dayId; });
+    if (!day || !day.images || !day.images[ctx.idx]) return;
+    var image = day.images[ctx.idx];
+    var key = getImageOverrideKey(ctx.dayId, image);
+    if (!customImageMap[key]) {
+        showSyncStatus('这张图现在就是默认图。');
+        return;
+    }
+    delete customImageMap[key];
+    if (!saveCustomImages()) return;
+    closeModal('editModal');
+    renderTimeline(); initCarousels(); toggleDay(ctx.dayId);
+    showSyncStatus('↩️ 已恢复默认图');
+}
+
 // ============= EDIT SPOTS =============
 function openEditSpot(dayId, idx) {
     var day = daysData.find(function(d) { return d.id === dayId; });
@@ -762,7 +1087,7 @@ function deleteSpot(dayId, idx) {
     if (!confirm('确定删除这个景点吗？')) return;
     var day = daysData.find(function(d) { return d.id === dayId; });
     day.spots.splice(idx, 1);
-    renderTimeline();
+    renderTimeline(); initCarousels();
     toggleDay(dayId);
     saveData();
 }
@@ -800,7 +1125,7 @@ function deleteAccom(dayId, idx) {
     if (!confirm('确定删除这个住宿吗？')) return;
     var day = daysData.find(function(d) { return d.id === dayId; });
     day.accommodation.splice(idx, 1);
-    renderTimeline();
+    renderTimeline(); initCarousels();
     toggleDay(dayId);
     saveData();
 }
@@ -846,14 +1171,33 @@ function deleteFood(foodId) {
 function saveEdit() {
     var ctx = currentEditContext;
     if (!ctx) return;
+    var localOnlyImageChange = false;
     if (ctx.type === 'spot') {
         var day = daysData.find(function(d) { return d.id === ctx.dayId; });
         day.spots[ctx.idx] = { time: document.getElementById('editTime').value, name: document.getElementById('editName').value, note: document.getElementById('editNote').value };
-        renderTimeline(); toggleDay(ctx.dayId);
+        renderTimeline(); initCarousels(); toggleDay(ctx.dayId);
     } else if (ctx.type === 'addSpot') {
         var day = daysData.find(function(d) { return d.id === ctx.dayId; });
         day.spots.push({ time: document.getElementById('editTime').value, name: document.getElementById('editName').value, note: document.getElementById('editNote').value });
-        renderTimeline(); toggleDay(ctx.dayId);
+        renderTimeline(); initCarousels(); toggleDay(ctx.dayId);
+    } else if (ctx.type === 'image') {
+        if (!pendingImageDataUrl) {
+            showSyncStatus('先选一张新图，再点保存。', true);
+            return;
+        }
+        var day = daysData.find(function(d) { return d.id === ctx.dayId; });
+        if (!day || !day.images || !day.images[ctx.idx]) return;
+        var image = day.images[ctx.idx];
+        var key = getImageOverrideKey(ctx.dayId, image);
+        var backup = customImageMap[key];
+        customImageMap[key] = { dataUrl: pendingImageDataUrl, updatedAt: new Date().toISOString(), spot: image.spot };
+        if (!saveCustomImages()) {
+            if (backup) customImageMap[key] = backup;
+            else delete customImageMap[key];
+            return;
+        }
+        renderTimeline(); initCarousels(); toggleDay(ctx.dayId);
+        localOnlyImageChange = true;
     } else if (ctx.type === 'food') {
         var food = foodData.find(function(f) { return f.id === ctx.foodId; });
         var cityLabels = { tekapo: '特卡波/库克山', wanaka: '瓦纳卡', queenstown: '皇后镇', dunedin: '达尼丁', christchurch: '基督城' };
@@ -876,7 +1220,7 @@ function saveEdit() {
                 day.accommodation.push({name: nameInputs[i].value.trim(), url: (urlInputs[i] ? urlInputs[i].value.trim() : '')});
             }
         }
-        renderTimeline(); toggleDay(ctx.dayId);
+        renderTimeline(); initCarousels(); toggleDay(ctx.dayId);
     } else if (ctx.type === 'addAccom') {
         var day = daysData.find(function(d) { return d.id === ctx.dayId; });
         var name = document.getElementById('editName').value;
@@ -884,7 +1228,7 @@ function saveEdit() {
         if (name) {
             day.accommodation.push({name: name, url: link || ''});
         }
-        renderTimeline(); toggleDay(ctx.dayId);
+        renderTimeline(); initCarousels(); toggleDay(ctx.dayId);
     } else if (ctx.type === 'addFood') {
         var cityLabels = { tekapo: '特卡波/库克山', wanaka: '瓦纳卡', queenstown: '皇后镇', dunedin: '达尼丁', christchurch: '基督城' };
         var city = document.getElementById('editCity').value;
@@ -898,10 +1242,23 @@ function saveEdit() {
         renderFood('all');
     }
     closeModal('editModal');
+    if (localOnlyImageChange) {
+        showSyncStatus('🖼️ 已替换图片（保存在当前浏览器）');
+        return;
+    }
     saveData();
 }
 
-function closeModal(id) { document.getElementById(id).classList.remove('active'); currentEditContext = null; }
+function closeModal(id) {
+    document.getElementById(id).classList.remove('active');
+    currentEditContext = null;
+    pendingImageDataUrl = '';
+    var saveBtn = document.getElementById('editSaveBtn');
+    if (saveBtn) {
+        saveBtn.textContent = '保存';
+        saveBtn.disabled = false;
+    }
+}
 
 // ============= HEADER BG =============
 function changeHeaderBg(input) {
@@ -1183,6 +1540,25 @@ function showSyncStatus(msg, isError) {
     setTimeout(function() { el.style.opacity = '0'; }, 2500);
 }
 
+function saveCustomImages() {
+    try {
+        localStorage.setItem(CUSTOM_IMAGE_KEY, JSON.stringify(customImageMap));
+        return true;
+    } catch (e) {
+        showSyncStatus('❌ 自定义图片太多了，本地空间不够。', true);
+        return false;
+    }
+}
+
+function loadCustomImages() {
+    try {
+        var saved = localStorage.getItem(CUSTOM_IMAGE_KEY);
+        customImageMap = saved ? (JSON.parse(saved) || {}) : {};
+    } catch (e) {
+        customImageMap = {};
+    }
+}
+
 function saveData() {
     // Save locally first
     try { localStorage.setItem(STORAGE_KEY, JSON.stringify({ days: daysData, food: foodData })); } catch(e) {}
@@ -1248,6 +1624,7 @@ function loadData() {
 function resetData() {
     if (confirm('确定恢复默认数据吗？所有人的编辑都将被清除！')) {
         localStorage.removeItem(STORAGE_KEY);
+        localStorage.removeItem(CUSTOM_IMAGE_KEY);
         // Also reset cloud
         fetch(CLOUD_URL, {
             method: 'PUT',
@@ -1261,7 +1638,7 @@ function refreshFromCloud() {
     showSyncStatus('🔄 刷新中...');
     loadFromCloud().then(function(loaded) {
         if (loaded) {
-            renderTimeline();
+            renderTimeline(); initCarousels();
             renderFood('all');
             showSyncStatus('✅ 已获取最新数据');
         } else {
@@ -1274,7 +1651,8 @@ function refreshFromCloud() {
 document.addEventListener('DOMContentLoaded', function() {
     // First render with default/local data
     loadFromLocal();
-    renderTimeline();
+    loadCustomImages();
+    renderTimeline(); initCarousels();
     renderFoodFilters();
     renderFood('all');
     initMap();
@@ -1283,7 +1661,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Then try to load from cloud and re-render
     loadFromCloud().then(function(loaded) {
         if (loaded) {
-            renderTimeline();
+            renderTimeline(); initCarousels();
             renderFood('all');
             showSyncStatus('☁️ 已从云端同步');
         } else {
