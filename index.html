@@ -120,9 +120,26 @@
         .experience-box .booking-info { font-size: 11px; color: #666; margin-top: 6px; }
         .experience-box .booking-info a { color: #c2185b; font-weight: 600; }
         /* Accommodation */
-        .accommodation { background: #fafafa; padding: 12px 16px; border-radius: 10px; margin-top: 10px; }
-        .accommodation h4 { color: #546e7a; font-size: 13px; margin-bottom: 6px; }
-        .accommodation li { padding: 2px 0; font-size: 13px; list-style: none; }
+        .accommodation { background: linear-gradient(180deg, #fafbfd 0%, #f6f8fb 100%); padding: 14px 16px; border-radius: 14px; margin-top: 12px; border: 1px solid #edf1f5; }
+        .accommodation h4 { color: #546e7a; font-size: 13px; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+        .accommodation-list { display: flex; flex-direction: column; gap: 10px; }
+        .accommodation-card { display: grid; grid-template-columns: 132px minmax(0, 1fr) auto; gap: 12px; align-items: center; background: #fff; border: 1px solid #e6edf5; border-radius: 14px; padding: 10px; }
+        .accommodation-thumb { width: 132px; aspect-ratio: 4 / 3; border-radius: 10px; overflow: hidden; background: linear-gradient(135deg, #eef3f8, #e3ebf4); display: flex; align-items: center; justify-content: center; color: #90a4ae; font-size: 12px; }
+        .accommodation-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+        .accommodation-body { min-width: 0; }
+        .accommodation-name { font-size: 14px; font-weight: 700; color: #263238; line-height: 1.4; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+        .accommodation-badge { display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px; border-radius: 999px; background: #fff1f2; color: #e11d48; font-size: 11px; font-weight: 700; }
+        .accommodation-note { margin-top: 6px; font-size: 12px; line-height: 1.55; color: #607d8b; }
+        .accommodation-actions { display: flex; flex-direction: column; gap: 8px; align-items: flex-end; }
+        .accommodation-link { display: inline-flex; align-items: center; justify-content: center; gap: 4px; padding: 8px 14px; border-radius: 999px; background: #e3f2fd; color: #1565c0; text-decoration: none; font-size: 12px; font-weight: 700; white-space: nowrap; }
+        .accommodation-link:hover { background: #1565c0; color: #fff; text-decoration: none; }
+        .accommodation-delete { align-self: flex-end; }
+        @media (max-width: 768px) {
+            .accommodation-card { grid-template-columns: 1fr; }
+            .accommodation-thumb { width: 100%; }
+            .accommodation-actions { align-items: stretch; }
+            .accommodation-link, .accommodation-delete { width: 100%; justify-content: center; }
+        }
         .nav-link { color: #1976d2; text-decoration: none; font-weight: 500; }
         .nav-link:hover { text-decoration: underline; }
         .tip-box { background: #e8f5e9; padding: 10px 14px; border-radius: 8px; margin: 8px 0; font-size: 12px; }
@@ -468,8 +485,7 @@ var daysData = [
             { icon: '♨️', title: 'Tekapo Springs 星空温泉', desc: '在温泉池中仰望南半球星空', price: 'NZD 35-45', link: 'https://tekaposprings.co.nz/' }
         ],
         accommodation: [
-            {name: 'Peppers Bluewater Resort', url: 'https://www.booking.com/hotel/nz/peppers-bluewater-resort.html'},
-            {name: 'Lake Tekapo Lodge', url: 'https://www.laketekapolodge.co.nz/'}
+            {name: 'Bluebird Apartment 3 Bedroom', url: 'https://www.airbnb.com/rooms/783423672964979072', image: 'images/accommodation/tekapo-bluebird-airbnb.jpg', note: 'Airbnb 已订 · 5月1日 15:00 入住 · 5月2日 10:00 退房 · 5名成人'}
         ],
         navLink: 'https://www.google.com/maps/dir/Christchurch+Airport/Lake+Tekapo'
     },
@@ -507,8 +523,7 @@ var daysData = [
             { icon: "🛩️", title: "U-Fly Wanaka 开飞机体验", desc: "我去小红书和官方页都核了：这项目其实是固定翼小飞机试飞，不是直升机。可以在教练陪同下自己拉杆、转弯，同行乘客可坐后排看景。", price: "NZD 388-718 / 20-60分钟", link: "https://u-flywanaka.co.nz/trial-flight/" }
         ],
         accommodation: [
-            {name: 'Novotel Queenstown Lakeside', url: 'https://www.booking.com/hotel/nz/gardens-queenstown.html'},
-            {name: 'Queenstown Park Hotel', url: 'https://www.booking.com/hotel/nz/queenstown-park-boutique.html'}
+            {name: 'That View! 3 brm Sunny & Spacious', url: 'https://www.airbnb.com/rooms/11262200', image: 'images/accommodation/queenstown-that-view-airbnb.jpg', note: 'Airbnb 已订 · 5月3日 15:00 入住 · 5月6日 10:00 退房 · 5名成人'}
         ]
     },
     {
@@ -526,8 +541,7 @@ var daysData = [
             { icon: '🚁', title: '直升机观光', desc: '飞越卓越山脉，俯瞰皇后镇', price: 'NZD 299起', link: 'https://www.helicopter.co.nz/chinese' }
         ],
         accommodation: [
-            {name: 'Novotel Queenstown Lakeside', url: 'https://www.booking.com/hotel/nz/gardens-queenstown.html'},
-            {name: 'Queenstown Park Hotel', url: 'https://www.booking.com/hotel/nz/queenstown-park-boutique.html'}
+            {name: 'That View! 3 brm Sunny & Spacious', url: 'https://www.airbnb.com/rooms/11262200', image: 'images/accommodation/queenstown-that-view-airbnb.jpg', note: 'Airbnb 已订 · 5月3日 15:00 入住 · 5月6日 10:00 退房 · 5名成人'}
         ]
     },
     {
@@ -545,8 +559,7 @@ var daysData = [
             { icon: '🌄', title: 'Hanley Park Playground 雪山秋千', desc: '我把图里这个点也查出来了：就是 Hanley Park Playground。正对卓越山，日落前去最出片，秋千、滑索和草坪都很治愈。', price: '免费', link: '' }
         ],
         accommodation: [
-            {name: 'Novotel Queenstown Lakeside', url: 'https://www.booking.com/hotel/nz/gardens-queenstown.html'},
-            {name: 'Queenstown Park Hotel', url: 'https://www.booking.com/hotel/nz/queenstown-park-boutique.html'}
+            {name: 'That View! 3 brm Sunny & Spacious', url: 'https://www.airbnb.com/rooms/11262200', image: 'images/accommodation/queenstown-that-view-airbnb.jpg', note: 'Airbnb 已订 · 5月3日 15:00 入住 · 5月6日 10:00 退房 · 5名成人'}
         ]
     },
     {
@@ -564,7 +577,7 @@ var daysData = [
             { icon: '🚢', title: '米尔福德峡湾游船', desc: '穿越峡湾观赏悬崖、瀑布和野生动物', price: 'NZD 85-150', link: 'https://www.realnz.com/en/experiences/day-cruises/milford-sound-cruise/' }
         ],
         accommodation: [
-            {name: 'Distinction Te Anau Hotel', url: 'https://www.booking.com/hotel/nz/distinction-te-anau-villas.html'}
+            {name: 'Mountain Views on Matai', url: 'https://www.airbnb.com/rooms/1502523372642442218', image: 'images/accommodation/te-anau-matai-airbnb.jpg', note: 'Airbnb 已订 · 5月6日 15:00 入住 · 5月7日 10:00 退房 · 5名成人'}
         ]
     },
     {
@@ -617,6 +630,17 @@ function cloneData(data) {
     return JSON.parse(JSON.stringify(data));
 }
 
+function normalizeAccommodation(accom) {
+    if (!accom) return { name: '', url: '', image: '', note: '' };
+    if (typeof accom === 'string') return { name: accom, url: '', image: '', note: '' };
+    return {
+        name: accom.name || '',
+        url: accom.url || '',
+        image: accom.image || '',
+        note: accom.note || ''
+    };
+}
+
 function migrateDaysData(savedDays) {
     if (!Array.isArray(savedDays) || savedDays.length === 0) {
         return cloneData(defaultDaysData);
@@ -642,8 +666,9 @@ function migrateDaysData(savedDays) {
         if (typeof savedDay.stay === 'string' && savedDay.stay.trim()) {
             mergedDay.stay = savedDay.stay;
         }
-        if (Array.isArray(savedDay.accommodation)) {
+        if (Array.isArray(savedDay.accommodation) && savedDay.accommodationUpdatedAt) {
             mergedDay.accommodation = cloneData(savedDay.accommodation);
+            mergedDay.accommodationUpdatedAt = savedDay.accommodationUpdatedAt;
         }
         if (Array.isArray(savedDay.images) && Array.isArray(mergedDay.images)) {
             for (var m = 0; m < mergedDay.images.length; m++) {
@@ -830,20 +855,35 @@ function renderTimeline() {
             html += '<div class="tip-box"><a href="' + d.navLink + '" target="_blank" class="nav-link">🗺️ Google Maps 导航</a></div>';
         }
         // Accommodation (editable, with booking links)
-        html += '<div class="accommodation"><h4>🏨 住宿：' + d.stay + ' <button class="spot-action-btn" style="opacity:1;margin-left:8px;" onclick="event.stopPropagation();openEditStay(' + d.id + ')">编辑</button></h4><ul>';
+        html += '<div class="accommodation"><h4>🏨 住宿：' + d.stay + ' <button class="spot-action-btn" style="opacity:1;margin-left:8px;" onclick="event.stopPropagation();openEditStay(' + d.id + ')">编辑</button></h4><div class="accommodation-list">';
         for (var m = 0; m < d.accommodation.length; m++) {
-            var accom = d.accommodation[m];
-            var accomName = typeof accom === 'string' ? accom : accom.name;
-            var accomUrl = typeof accom === 'string' ? '' : (accom.url || '');
-            html += '<li style="display:flex;justify-content:space-between;align-items:center;">';
-            html += '<span style="display:flex;align-items:center;gap:8px;flex:1;">' + accomName;
-            if (accomUrl) {
-                html += ' <a href="' + accomUrl + '" target="_blank" class="nav-link" style="font-size:12px;white-space:nowrap;background:#e3f2fd;padding:2px 10px;border-radius:12px;text-decoration:none;" onclick="event.stopPropagation()">🔗 预订</a>';
+            var accom = normalizeAccommodation(d.accommodation[m]);
+            var accomBadge = '';
+            if (accom.url && accom.url.indexOf('airbnb.') !== -1) {
+                accomBadge = '<span class="accommodation-badge">Airbnb 已订</span>';
+            } else if (accom.url && accom.url.indexOf('booking.com') !== -1) {
+                accomBadge = '<span class="accommodation-badge" style="background:#eef6ff;color:#1565c0;">Booking</span>';
             }
-            html += '</span>';
-            html += ' <span class="spot-actions" style="opacity:1;"><button class="spot-action-btn delete" onclick="event.stopPropagation();deleteAccom(' + d.id + ',' + m + ')">删除</button></span></li>';
+            html += '<div class="accommodation-card">';
+            if (accom.image) {
+                html += '<div class="accommodation-thumb"><img src="' + accom.image + '" alt="' + accom.name + '" loading="lazy"></div>';
+            } else {
+                html += '<div class="accommodation-thumb">暂无预览图</div>';
+            }
+            html += '<div class="accommodation-body">';
+            html += '<div class="accommodation-name">' + accom.name + accomBadge + '</div>';
+            if (accom.note) {
+                html += '<div class="accommodation-note">' + accom.note + '</div>';
+            }
+            html += '</div>';
+            html += '<div class="accommodation-actions">';
+            if (accom.url) {
+                html += '<a href="' + accom.url + '" target="_blank" class="accommodation-link" onclick="event.stopPropagation()">🏠 直达房源</a>';
+            }
+            html += '<button class="spot-action-btn delete accommodation-delete" onclick="event.stopPropagation();deleteAccom(' + d.id + ',' + m + ')">删除</button>';
+            html += '</div></div>';
         }
-        html += '</ul><button class="add-item-btn" style="margin-top:6px;" onclick="openAddAccom(' + d.id + ')">＋ 新增住宿</button></div>';
+        html += '</div><button class="add-item-btn" style="margin-top:10px;" onclick="openAddAccom(' + d.id + ')">＋ 新增住宿</button></div>';
         html += '</div></div></div>';
     }
     c.innerHTML = html;
@@ -1187,15 +1227,19 @@ function openEditStay(dayId) {
     currentEditContext = { type: 'stay', dayId: dayId };
     document.getElementById('editModalTitle').textContent = '编辑住宿信息';
     var html = '<div class="form-group"><label>住宿地点概述</label><input id="editStayLabel" value="' + day.stay.replace(/"/g, '&quot;') + '"></div>';
-    html += '<p style="font-size:12px;color:#999;margin-bottom:12px;">下方逐条编辑具体酒店：</p>';
+    html += '<p style="font-size:12px;color:#999;margin-bottom:12px;">下方逐条编辑具体房源，图片可填本地路径或外链：</p>';
     for (var i = 0; i < day.accommodation.length; i++) {
-        var accom = day.accommodation[i];
-        var accomName = typeof accom === 'string' ? accom : accom.name;
-        var accomUrl = typeof accom === 'string' ? '' : (accom.url || '');
-        html += '<div class="form-group" style="display:flex;gap:8px;align-items:end;">' +
-            '<div style="flex:1;"><label>酒店 ' + (i + 1) + '</label><input class="editAccomName" value="' + accomName.replace(/"/g, '&quot;') + '"></div>' +
-            '<div style="flex:1;"><label>预订链接</label><input class="editAccomUrl" value="' + accomUrl.replace(/"/g, '&quot;') + '" placeholder="https://..."></div>' +
-            '</div>';
+        var accom = normalizeAccommodation(day.accommodation[i]);
+        html += '<div class="form-group" style="padding:12px;border:1px solid #e9eef3;border-radius:12px;margin-bottom:10px;">' +
+            '<div style="display:flex;gap:8px;align-items:end;flex-wrap:wrap;">' +
+                '<div style="flex:1;min-width:180px;"><label>房源 ' + (i + 1) + '</label><input class="editAccomName" value="' + accom.name.replace(/"/g, '&quot;') + '"></div>' +
+                '<div style="flex:1;min-width:180px;"><label>直达链接</label><input class="editAccomUrl" value="' + accom.url.replace(/"/g, '&quot;') + '" placeholder="https://..."></div>' +
+            '</div>' +
+            '<div style="display:flex;gap:8px;align-items:end;flex-wrap:wrap;margin-top:8px;">' +
+                '<div style="flex:1;min-width:180px;"><label>预览图</label><input class="editAccomImage" value="' + accom.image.replace(/"/g, '&quot;') + '" placeholder="images/... 或 https://..."></div>' +
+                '<div style="flex:1;min-width:180px;"><label>补充说明</label><input class="editAccomNote" value="' + accom.note.replace(/"/g, '&quot;') + '" placeholder="如：Airbnb 已订 · 5名成人"></div>' +
+            '</div>' +
+        '</div>';
     }
     document.getElementById('editModalBody').innerHTML = html;
     document.getElementById('editModal').classList.add('active');
@@ -1205,8 +1249,10 @@ function openAddAccom(dayId) {
     currentEditContext = { type: 'addAccom', dayId: dayId };
     document.getElementById('editModalTitle').textContent = '新增住宿';
     document.getElementById('editModalBody').innerHTML =
-        '<div class="form-group"><label>酒店名称</label><input id="editName" placeholder="如：Hilton Queenstown"></div>' +
-        '<div class="form-group"><label>预订链接（可选）</label><input id="editNote" placeholder="https://..."></div>';
+        '<div class="form-group"><label>房源名称</label><input id="editName" placeholder="如：Hilton Queenstown"></div>' +
+        '<div class="form-group"><label>直达链接（可选）</label><input id="editNote" placeholder="https://..."></div>' +
+        '<div class="form-group"><label>预览图（可选）</label><input id="editAccomImageSingle" placeholder="images/... 或 https://..."></div>' +
+        '<div class="form-group"><label>补充说明（可选）</label><input id="editAccomNoteSingle" placeholder="如：Airbnb 已订 · 5月3日-5月6日"></div>';
     document.getElementById('editModal').classList.add('active');
 }
 
@@ -1214,6 +1260,7 @@ function deleteAccom(dayId, idx) {
     if (!confirm('确定删除这个住宿吗？')) return;
     var day = daysData.find(function(d) { return d.id === dayId; });
     day.accommodation.splice(idx, 1);
+    day.accommodationUpdatedAt = new Date().toISOString();
     renderTimeline(); initCarousels();
     toggleDay(dayId);
     saveData();
@@ -1336,19 +1383,30 @@ function saveEdit() {
         day.stay = document.getElementById('editStayLabel').value;
         var nameInputs = document.querySelectorAll('.editAccomName');
         var urlInputs = document.querySelectorAll('.editAccomUrl');
+        var imageInputs = document.querySelectorAll('.editAccomImage');
+        var noteInputs = document.querySelectorAll('.editAccomNote');
         day.accommodation = [];
         for (var i = 0; i < nameInputs.length; i++) {
             if (nameInputs[i].value.trim()) {
-                day.accommodation.push({name: nameInputs[i].value.trim(), url: (urlInputs[i] ? urlInputs[i].value.trim() : '')});
+                day.accommodation.push({
+                    name: nameInputs[i].value.trim(),
+                    url: (urlInputs[i] ? urlInputs[i].value.trim() : ''),
+                    image: (imageInputs[i] ? imageInputs[i].value.trim() : ''),
+                    note: (noteInputs[i] ? noteInputs[i].value.trim() : '')
+                });
             }
         }
+        day.accommodationUpdatedAt = new Date().toISOString();
         renderTimeline(); initCarousels(); toggleDay(ctx.dayId);
     } else if (ctx.type === 'addAccom') {
         var day = daysData.find(function(d) { return d.id === ctx.dayId; });
         var name = document.getElementById('editName').value;
         var link = document.getElementById('editNote').value;
+        var image = document.getElementById('editAccomImageSingle').value;
+        var note = document.getElementById('editAccomNoteSingle').value;
         if (name) {
-            day.accommodation.push({name: name, url: link || ''});
+            day.accommodation.push({name: name, url: link || '', image: image || '', note: note || ''});
+            day.accommodationUpdatedAt = new Date().toISOString();
         }
         renderTimeline(); initCarousels(); toggleDay(ctx.dayId);
     } else if (ctx.type === 'addFood') {
