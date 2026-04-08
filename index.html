@@ -629,33 +629,16 @@ function migrateDaysData(savedDays) {
             continue;
         }
         var mergedDay = cloneData(baseDay);
-        for (var key in savedDay) {
-            mergedDay[key] = savedDay[key];
+        if (Array.isArray(savedDay.spots) && savedDay.spots.length > 0) {
+            mergedDay.spots = cloneData(savedDay.spots);
         }
-        if (!Array.isArray(savedDay.images) || savedDay.images.length === 0) {
-            mergedDay.images = cloneData(baseDay.images || []);
+        if (typeof savedDay.stay === 'string' && savedDay.stay.trim()) {
+            mergedDay.stay = savedDay.stay;
         }
-        if (!Array.isArray(savedDay.tags) || savedDay.tags.length === 0) {
-            mergedDay.tags = cloneData(baseDay.tags || []);
-        }
-        if (!Array.isArray(savedDay.tagTypes) || savedDay.tagTypes.length === 0) {
-            mergedDay.tagTypes = cloneData(baseDay.tagTypes || []);
-        }
-        if (!Array.isArray(savedDay.spots) || savedDay.spots.length === 0) {
-            mergedDay.spots = cloneData(baseDay.spots || []);
-        }
-        if (!Array.isArray(savedDay.experiences)) {
-            mergedDay.experiences = cloneData(baseDay.experiences || []);
-        }
-        if (!Array.isArray(savedDay.accommodation)) {
-            mergedDay.accommodation = cloneData(baseDay.accommodation || []);
+        if (Array.isArray(savedDay.accommodation)) {
+            mergedDay.accommodation = cloneData(savedDay.accommodation);
         }
         mergedDays.push(mergedDay);
-    }
-    for (var k = 0; k < savedDays.length; k++) {
-        var extraDay = savedDays[k];
-        var exists = mergedDays.some(function(day) { return day.id === extraDay.id; });
-        if (!exists) mergedDays.push(extraDay);
     }
     return mergedDays;
 }
