@@ -645,6 +645,14 @@ function migrateDaysData(savedDays) {
         if (Array.isArray(savedDay.accommodation)) {
             mergedDay.accommodation = cloneData(savedDay.accommodation);
         }
+        if (Array.isArray(savedDay.images) && Array.isArray(mergedDay.images)) {
+            for (var m = 0; m < mergedDay.images.length; m++) {
+                var savedImage = savedDay.images[m];
+                if (savedImage && typeof savedImage.spot === 'string' && savedImage.spot.trim()) {
+                    mergedDay.images[m].spot = savedImage.spot.trim();
+                }
+            }
+        }
         mergedDays.push(mergedDay);
     }
     return mergedDays;
@@ -731,7 +739,7 @@ function renderCarousel(dayId, images) {
         var sourceIndex = typeof images[i].originalIndex === 'number' ? images[i].originalIndex : i;
         var displayUrl = getDisplayImageUrl(dayId, images[i]);
         var customTag = hasImageOverride(dayId, images[i]);
-        var editLabel = customTag ? '已替换，点这里重新换图' : '替换这张图';
+        var editLabel = customTag ? '编辑这张图和下方文字（当前已使用自定义图）' : '编辑这张图和下方文字';
         h += '<div class="carousel-slide is-portrait">' +
             '<div class="carousel-media">' +
             '<img src="' + displayUrl + '" alt="' + images[i].spot + '" loading="lazy" onload="setCarouselImageLayout(this)" onerror="this.closest(\'.carousel-slide\').style.display=\'none\'">' +
@@ -972,16 +980,17 @@ function openEditImage(dayId, idx) {
     var image = day.images[idx];
     var currentUrl = getDisplayImageUrl(dayId, image);
     var hasCustom = hasImageOverride(dayId, image);
-    currentEditContext = { type: 'image', dayId: dayId, idx: idx };
+    currentEditContext = { type: 'image', dayId: dayId, idx: idx, originalKey: getImageOverrideKey(dayId, image), originalSpot: image.spot };
     pendingImageDataUrl = '';
-    document.getElementById('editModalTitle').textContent = '替换图片';
-    document.getElementById('editSaveBtn').textContent = '保存换图';
-    document.getElementById('editSaveBtn').disabled = true;
+    document.getElementById('editModalTitle').textContent = '编辑图片';
+    document.getElementById('editSaveBtn').textContent = '保存图片设置';
+    document.getElementById('editSaveBtn').disabled = false;
     document.getElementById('editModalBody').innerHTML =
-        '<div class="replace-tip">这张图换掉后会保存在当前浏览器，本地刷新不会丢。适合你直接把截图粘过来，手动纠图不用再跟我吵了。</div>' +
+        '<div class="replace-tip">图片替换仍然保存在当前浏览器；下方文字会跟行程数据一起保存。只改文字也能直接点保存，不用重新换图。</div>' +
+        '<div class="form-group"><label>图片下方文字</label><input id="editImageLabel" maxlength="40" value="' + (image.spot || '').replace(/"/g, '&quot;') + '" placeholder="比如：皇后镇全景"></div>' +
         '<div class="replace-preview-grid">' +
-            '<div class="replace-preview-card"><h5>当前图片</h5><img src="' + currentUrl + '" alt="当前图片"><div class="replace-preview-meta">点位：' + image.spot + (hasCustom ? '<br>状态：已使用本地替换图' : '<br>状态：默认图') + '</div></div>' +
-            '<div class="replace-preview-card"><h5>准备替换成</h5><img id="imageDraftPreview" src="" alt="待替换图片" style="display:none;"><div class="replace-preview-empty" id="imageDraftEmpty">还没选新图<br>可以上传，也可以点下面区域后直接按 ⌘V / Ctrl+V</div><div class="replace-preview-meta" id="imageDraftMeta">建议优先贴你自己筛过的截图，省得错图再来回折腾。</div></div>' +
+            '<div class="replace-preview-card"><h5>当前图片</h5><img src="' + currentUrl + '" alt="当前图片"><div class="replace-preview-meta">当前文案：' + image.spot + (hasCustom ? '<br>状态：已使用本地替换图' : '<br>状态：默认图') + '</div></div>' +
+            '<div class="replace-preview-card"><h5>准备替换成</h5><img id="imageDraftPreview" src="" alt="待替换图片" style="display:none;"><div class="replace-preview-empty" id="imageDraftEmpty">还没选新图<br>可以上传，也可以点下面区域后直接按 ⌘V / Ctrl+V</div><div class="replace-preview-meta" id="imageDraftMeta">建议优先贴你自己筛过的截图；如果只改文字，下面不选图也能直接保存。</div></div>' +
         '</div>' +
         '<div class="replace-actions">' +
             '<button class="replace-action-btn primary" type="button" onclick="triggerImageFilePick()">上传图片</button>' +
@@ -1080,7 +1089,7 @@ function handleIncomingImageFile(file, sourceLabel) {
             preview.style.display = 'block';
         }
         if (empty) empty.style.display = 'none';
-        if (meta) meta.textContent = '已读取：' + sourceLabel + '。看着没问题就点“保存换图”。';
+        if (meta) meta.textContent = '已读取：' + sourceLabel + '。看着没问题就点“保存图片设置”。';
         if (zone) zone.classList.add('dragover');
         if (saveBtn) saveBtn.disabled = false;
     }).catch(function() {
@@ -1261,23 +1270,56 @@ function saveEdit() {
         day.spots.push({ time: document.getElementById('editTime').value, name: document.getElementById('editName').value, note: document.getElementById('editNote').value });
         renderTimeline(); initCarousels(); toggleDay(ctx.dayId);
     } else if (ctx.type === 'image') {
-        if (!pendingImageDataUrl) {
-            showSyncStatus('先选一张新图，再点保存。', true);
-            return;
-        }
         var day = daysData.find(function(d) { return d.id === ctx.dayId; });
         if (!day || !day.images || !day.images[ctx.idx]) return;
         var image = day.images[ctx.idx];
-        var key = getImageOverrideKey(ctx.dayId, image);
-        var backup = customImageMap[key];
-        customImageMap[key] = { dataUrl: pendingImageDataUrl, updatedAt: new Date().toISOString(), spot: image.spot };
-        if (!saveCustomImages()) {
-            if (backup) customImageMap[key] = backup;
-            else delete customImageMap[key];
+        var oldSpot = image.spot || '';
+        var nextSpot = (document.getElementById('editImageLabel').value || '').trim() || oldSpot || '未命名景点';
+        var labelChanged = nextSpot !== oldSpot;
+        var imageChanged = !!pendingImageDataUrl;
+        if (!labelChanged && !imageChanged) {
+            showSyncStatus('改点图片文字或换张图，再点保存。', true);
             return;
         }
+        var oldKey = ctx.originalKey || getImageOverrideKey(ctx.dayId, image);
+        var nextMap = {};
+        for (var mapKey in customImageMap) nextMap[mapKey] = customImageMap[mapKey];
+        var existingOverride = oldKey && nextMap[oldKey] ? nextMap[oldKey] : null;
+        if (labelChanged) {
+            image.spot = nextSpot;
+        }
+        var newKey = getImageOverrideKey(ctx.dayId, image);
+        var customMapChanged = false;
+        if (existingOverride && oldKey !== newKey) {
+            delete nextMap[oldKey];
+            nextMap[newKey] = {
+                dataUrl: existingOverride.dataUrl,
+                updatedAt: existingOverride.updatedAt,
+                spot: nextSpot
+            };
+            customMapChanged = true;
+        }
+        if (imageChanged) {
+            nextMap[newKey] = {
+                dataUrl: pendingImageDataUrl,
+                updatedAt: new Date().toISOString(),
+                spot: nextSpot
+            };
+            customMapChanged = true;
+        } else if (nextMap[newKey]) {
+            nextMap[newKey].spot = nextSpot;
+        }
+        if (customMapChanged) {
+            var originalMap = customImageMap;
+            customImageMap = nextMap;
+            if (!saveCustomImages()) {
+                customImageMap = originalMap;
+                image.spot = oldSpot;
+                return;
+            }
+        }
         renderTimeline(); initCarousels(); toggleDay(ctx.dayId);
-        localOnlyImageChange = true;
+        localOnlyImageChange = imageChanged && !labelChanged;
     } else if (ctx.type === 'food') {
         var food = foodData.find(function(f) { return f.id === ctx.foodId; });
         var cityLabels = { tekapo: '特卡波/库克山', wanaka: '瓦纳卡', queenstown: '皇后镇', dunedin: '达尼丁', christchurch: '基督城' };
