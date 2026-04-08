@@ -603,6 +603,73 @@ var currentEditContext = null;
 var CUSTOM_IMAGE_KEY = 'nz-travel-custom-images-v1';
 var customImageMap = {};
 var pendingImageDataUrl = '';
+var defaultDaysData = JSON.parse(JSON.stringify(daysData));
+var defaultFoodData = JSON.parse(JSON.stringify(foodData));
+
+function cloneData(data) {
+    return JSON.parse(JSON.stringify(data));
+}
+
+function migrateDaysData(savedDays) {
+    if (!Array.isArray(savedDays) || savedDays.length === 0) {
+        return cloneData(defaultDaysData);
+    }
+    var mergedDays = [];
+    for (var i = 0; i < defaultDaysData.length; i++) {
+        var baseDay = defaultDaysData[i];
+        var savedDay = null;
+        for (var j = 0; j < savedDays.length; j++) {
+            if (savedDays[j] && savedDays[j].id === baseDay.id) {
+                savedDay = savedDays[j];
+                break;
+            }
+        }
+        if (!savedDay) {
+            mergedDays.push(cloneData(baseDay));
+            continue;
+        }
+        var mergedDay = cloneData(baseDay);
+        for (var key in savedDay) {
+            mergedDay[key] = savedDay[key];
+        }
+        if (!Array.isArray(savedDay.images) || savedDay.images.length === 0) {
+            mergedDay.images = cloneData(baseDay.images || []);
+        }
+        if (!Array.isArray(savedDay.tags) || savedDay.tags.length === 0) {
+            mergedDay.tags = cloneData(baseDay.tags || []);
+        }
+        if (!Array.isArray(savedDay.tagTypes) || savedDay.tagTypes.length === 0) {
+            mergedDay.tagTypes = cloneData(baseDay.tagTypes || []);
+        }
+        if (!Array.isArray(savedDay.spots) || savedDay.spots.length === 0) {
+            mergedDay.spots = cloneData(baseDay.spots || []);
+        }
+        if (!Array.isArray(savedDay.experiences)) {
+            mergedDay.experiences = cloneData(baseDay.experiences || []);
+        }
+        if (!Array.isArray(savedDay.accommodation)) {
+            mergedDay.accommodation = cloneData(baseDay.accommodation || []);
+        }
+        mergedDays.push(mergedDay);
+    }
+    for (var k = 0; k < savedDays.length; k++) {
+        var extraDay = savedDays[k];
+        var exists = mergedDays.some(function(day) { return day.id === extraDay.id; });
+        if (!exists) mergedDays.push(extraDay);
+    }
+    return mergedDays;
+}
+
+function applyPersistedData(data) {
+    if (!data || typeof data !== 'object') return false;
+    daysData = migrateDaysData(data.days);
+    if (Array.isArray(data.food) && data.food.length > 0) {
+        foodData = data.food;
+    } else {
+        foodData = cloneData(defaultFoodData);
+    }
+    return true;
+}
 
 // ============= RENDER =============
 
@@ -1590,15 +1657,12 @@ function loadFromCloud() {
         .then(function(r) { return r.json(); })
         .then(function(data) {
             if (data && data.days && data.days.length > 0) {
-                daysData = data.days;
-                foodData = data.food || foodData;
-                // Also save locally
+                applyPersistedData(data);
                 try { localStorage.setItem(STORAGE_KEY, JSON.stringify({ days: daysData, food: foodData })); } catch(e) {}
                 return true;
             }
             return false;
         }).catch(function() {
-            // Fallback to localStorage
             return loadFromLocal();
         });
 }
@@ -1608,9 +1672,10 @@ function loadFromLocal() {
         var saved = localStorage.getItem(STORAGE_KEY);
         if (saved) {
             var d = JSON.parse(saved);
-            if (d.days) daysData = d.days;
-            if (d.food) foodData = d.food;
-            return true;
+            if (applyPersistedData(d)) {
+                try { localStorage.setItem(STORAGE_KEY, JSON.stringify({ days: daysData, food: foodData })); } catch(e) {}
+                return true;
+            }
         }
     } catch(e) {}
     return false;
